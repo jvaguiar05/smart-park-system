@@ -1,0 +1,10 @@
+-r base.in
+ipython
+pytest
+pytest-django
+model-bakery
+black
+ruff
+mypy
+pre-commit
+pip-tools
