@@ -1,0 +1,250 @@
+{% extends "admin/index.html" %} {% load static %} {% block extrahead %} {{
+block.super }}
+<style>
+    .dashboard-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin: 20px 0;
+    }
+
+    .stat-card {
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 20px;
+        text-align: center;
+    }
+
+    .stat-number {
+        font-size: 2.5em;
+        font-weight: bold;
+        color: #007cba;
+        margin: 10px 0;
+    }
+
+    .stat-label {
+        color: #666;
+        font-size: 1.1em;
+    }
+
+    .stat-good {
+        color: #28a745;
+    }
+    .stat-warning {
+        color: #ffc107;
+    }
+    .stat-danger {
+        color: #dc3545;
+    }
+
+    .progress-bar {
+        width: 100%;
+        height: 10px;
+        background-color: #e9ecef;
+        border-radius: 5px;
+        margin: 10px 0;
+        overflow: hidden;
+    }
+
+    .progress-fill {
+        height: 100%;
+        background-color: #007cba;
+        transition: width 0.3s ease;
+    }
+
+    .progress-fill.good {
+        background-color: #28a745;
+    }
+    .progress-fill.warning {
+        background-color: #ffc107;
+    }
+    .progress-fill.danger {
+        background-color: #dc3545;
+    }
+
+    .dashboard-section {
+        margin: 30px 0;
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 20px;
+    }
+
+    .section-title {
+        color: #007cba;
+        border-bottom: 2px solid #007cba;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+    }
+
+    .event-item {
+        padding: 10px;
+        border-left: 4px solid #007cba;
+        margin: 10px 0;
+        background: #f8f9fa;
+    }
+
+    .event-item.occupied {
+        border-left-color: #dc3545;
+    }
+    .event-item.free {
+        border-left-color: #28a745;
+    }
+
+    .camera-problem {
+        padding: 10px;
+        border-left: 4px solid #dc3545;
+        margin: 10px 0;
+        background: #fff5f5;
+    }
+</style>
+{% endblock %} {% block content %}
+<h1>Dashboard SmartPark</h1>
+
+{% if dashboard_stats %}
+<div class="dashboard-stats">
+    <!-- Estatísticas de Clientes -->
+    <div class="stat-card">
+        <div
+            class="stat-number {% if dashboard_stats.clients.active_percentage > 80 %}stat-good{% elif dashboard_stats.clients.active_percentage > 50 %}stat-warning{% else %}stat-danger{% endif %}"
+        >
+            {{ dashboard_stats.clients.total }}
+        </div>
+        <div class="stat-label">Clientes Total</div>
+        <div class="progress-bar">
+            <div
+                class="progress-fill {% if dashboard_stats.clients.active_percentage > 80 %}good{% elif dashboard_stats.clients.active_percentage > 50 %}warning{% else %}danger{% endif %}"
+                style="width: {{ dashboard_stats.clients.active_percentage }}%"
+            ></div>
+        </div>
+        <small
+            >{{ dashboard_stats.clients.active }} ativos ({{
+            dashboard_stats.clients.active_percentage|floatformat:1 }}%)</small
+        >
+    </div>
+
+    <!-- Estatísticas de Infraestrutura -->
+    <div class="stat-card">
+        <div class="stat-number stat-good">
+            {{ dashboard_stats.infrastructure.establishments }}
+        </div>
+        <div class="stat-label">Estabelecimentos</div>
+        <div style="margin-top: 10px">
+            <small
+                >{{ dashboard_stats.infrastructure.lots }} lotes • {{
+                dashboard_stats.infrastructure.slots }} vagas</small
+            >
+        </div>
+    </div>
+
+    <!-- Taxa de Ocupação -->
+    <div class="stat-card">
+        <div
+            class="stat-number {% if dashboard_stats.occupancy.rate > 80 %}stat-danger{% elif dashboard_stats.occupancy.rate > 50 %}stat-warning{% else %}stat-good{% endif %}"
+        >
+            {{ dashboard_stats.occupancy.rate|floatformat:1 }}%
+        </div>
+        <div class="stat-label">Taxa de Ocupação</div>
+        <div class="progress-bar">
+            <div
+                class="progress-fill {% if dashboard_stats.occupancy.rate > 80 %}danger{% elif dashboard_stats.occupancy.rate > 50 %}warning{% else %}good{% endif %}"
+                style="width: {{ dashboard_stats.occupancy.rate }}%"
+            ></div>
+        </div>
+        <small
+            >{{ dashboard_stats.occupancy.occupied }} ocupadas • {{
+            dashboard_stats.occupancy.free }} livres</small
+        >
+    </div>
+
+    <!-- Status das Câmeras -->
+    <div class="stat-card">
+        <div
+            class="stat-number {% if dashboard_stats.hardware.online_percentage > 80 %}stat-good{% elif dashboard_stats.hardware.online_percentage > 50 %}stat-warning{% else %}stat-danger{% endif %}"
+        >
+            {{ dashboard_stats.hardware.online_cameras }}
+        </div>
+        <div class="stat-label">Câmeras Online</div>
+        <div class="progress-bar">
+            <div
+                class="progress-fill {% if dashboard_stats.hardware.online_percentage > 80 %}good{% elif dashboard_stats.hardware.online_percentage > 50 %}warning{% else %}danger{% endif %}"
+                style="width: {{ dashboard_stats.hardware.online_percentage }}%"
+            ></div>
+        </div>
+        <small
+            >{{ dashboard_stats.hardware.total_cameras }} total ({{
+            dashboard_stats.hardware.online_percentage|floatformat:1 }}%
+            online)</small
+        >
+    </div>
+
+    <!-- Eventos -->
+    <div class="stat-card">
+        <div class="stat-number stat-good">
+            {{ dashboard_stats.events.last_24h }}
+        </div>
+        <div class="stat-label">Eventos (24h)</div>
+        <div style="margin-top: 10px">
+            <small
+                >{{ dashboard_stats.events.last_7d }} eventos nos últimos 7
+                dias</small
+            >
+        </div>
+    </div>
+</div>
+
+<!-- Top Estabelecimentos -->
+{% if top_establishments %}
+<div class="dashboard-section">
+    <h2 class="section-title">🏢 Top Estabelecimentos por Ocupação</h2>
+    {% for establishment in top_establishments %}
+    <div class="event-item">
+        <strong>{{ establishment.name }}</strong> ({{ establishment.client.name
+        }})<br />
+        <small>
+            {{ establishment.occupied_slots }}/{{ establishment.total_slots }}
+            vagas ocupadas ({{
+            establishment.occupied_slots|mul:100|div:establishment.total_slots|floatformat:1
+            }}%)
+        </small>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- Câmeras com Problemas -->
+{% if problematic_cameras %}
+<div class="dashboard-section">
+    <h2 class="section-title">⚠️ Câmeras com Problemas</h2>
+    {% for camera in problematic_cameras %}
+    <div class="camera-problem">
+        <strong>{{ camera.camera_code }}</strong> ({{ camera.client.name }})<br />
+        <small>
+            Status: {{ camera.get_state_display }} • {% if camera.last_seen_at
+            %} Último sinal: {{ camera.last_seen_at|timesince }} atrás {% else
+            %} Nunca conectada {% endif %}
+        </small>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- Eventos Recentes -->
+{% if recent_events %}
+<div class="dashboard-section">
+    <h2 class="section-title">📊 Eventos Recentes</h2>
+    {% for event in recent_events %}
+    <div
+        class="event-item {% if 'OCCUPIED' in event.event_type %}occupied{% elif 'FREED' in event.event_type %}free{% endif %}"
+    >
+        <strong>{{ event.get_event_type_display }}</strong><br />
+        <small>
+            {% if event.slot %} Vaga: {{ event.slot.slot_code }} ({{
+            event.slot.lot.establishment.name }}) • {% endif %} {{
+            event.occurred_at|timesince }} atrás
+        </small>
+    </div>
+    {% endfor %}
+</div>
+{% endif %} {% endif %} {{ block.super }} {% endblock %}
