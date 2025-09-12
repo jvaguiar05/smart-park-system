@@ -99,7 +99,57 @@ REST_FRAMEWORK = {
 # Swagger/Schema
 SPECTACULAR_SETTINGS = {
     "TITLE": "SmartPark API",
+    "DESCRIPTION": "API para sistema de gerenciamento inteligente de estacionamentos",
     "VERSION": "v1",
+    "SERVE_INCLUDE_SCHEMA": False,
+    "TAGS": [
+        {
+            "name": "Authentication",
+            "description": "Endpoints de autenticação e autorização",
+        },
+        {"name": "Clients", "description": "Gerenciamento de clientes do sistema"},
+        {
+            "name": "Client Members",
+            "description": "Gerenciamento de membros de clientes",
+        },
+        {"name": "Establishments", "description": "Gerenciamento de estabelecimentos"},
+        {"name": "Lots", "description": "Gerenciamento de estacionamentos/lotes"},
+        {"name": "Slots", "description": "Gerenciamento de vagas de estacionamento"},
+        {"name": "Slot Status", "description": "Status atual das vagas"},
+        {
+            "name": "Slot Status History",
+            "description": "Histórico de mudanças de status das vagas",
+        },
+        {"name": "Events", "description": "Sistema de eventos de status das vagas"},
+        {"name": "Cameras", "description": "Gerenciamento de câmeras de monitoramento"},
+        {
+            "name": "Camera Monitoring",
+            "description": "Monitoramento e heartbeats das câmeras",
+        },
+        {
+            "name": "API Keys",
+            "description": "Gerenciamento de chaves de API para hardware",
+        },
+        {
+            "name": "Hardware Integration",
+            "description": "Endpoints para integração com hardware",
+        },
+        {
+            "name": "Catalog - Store Types",
+            "description": "Tipos de estabelecimento disponíveis",
+        },
+        {
+            "name": "Catalog - Vehicle Types",
+            "description": "Tipos de veículos disponíveis",
+        },
+        {"name": "Catalog - Slot Types", "description": "Tipos de vagas disponíveis"},
+        {
+            "name": "Public API",
+            "description": "Endpoints públicos para consulta de informações",
+        },
+    ],
+    "COMPONENT_SPLIT_REQUEST": True,
+    "SORT_OPERATIONS": False,
 }
 
 # JWT
