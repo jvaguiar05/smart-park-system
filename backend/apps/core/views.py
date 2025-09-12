@@ -1,123 +1,141 @@
-from rest_framework import viewsets
-from . import models
-from . import serializers
-from rest_framework import permissions
+from rest_framework import generics, permissions, status
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.response import Response
+from django.shortcuts import get_object_or_404
+from django.db.models import Q
+
+from .models import SoftDeleteManager, TenantManager
 
 
-# Permissão padrão: autenticado para escrita, leitura aberta no MVP (ajuste depois)
-class DefaultPermission(permissions.IsAuthenticatedOrReadOnly):
-    pass
+class BaseViewSetMixin:
+    """
+    Mixin com funcionalidades comuns para viewsets
+    """
+    def get_queryset(self):
+        """Retorna queryset filtrado por soft delete"""
+        if hasattr(self, 'queryset') and self.queryset is not None:
+            return self.queryset
+        return self.get_serializer_class().Meta.model.objects.all()
+
+    def perform_destroy(self, instance):
+        """Implementa soft delete ao invés de delete físico"""
+        if hasattr(instance, 'soft_delete'):
+            instance.soft_delete()
+        else:
+            instance.delete()
 
 
-class PeopleViewSet(viewsets.ModelViewSet):
-    queryset = models.People.objects.all().order_by("-id")
-    serializer_class = serializers.PeopleSerializer
-    permission_classes = [DefaultPermission]
+class TenantViewSetMixin(BaseViewSetMixin):
+    """
+    Mixin para viewsets que lidam com tenants
+    """
+    def get_queryset(self):
+        """Filtra queryset pelos clientes do usuário"""
+        queryset = super().get_queryset()
+        if hasattr(queryset, 'for_user'):
+            return queryset.for_user(self.request.user)
+        return queryset
+
+    def perform_create(self, serializer):
+        """Define o client baseado no usuário logado"""
+        if hasattr(serializer.Meta.model, 'client'):
+            user_client = self.request.user.client_members.first()
+            if user_client:
+                serializer.save(client=user_client.client)
+            else:
+                serializer.save()
+        else:
+            serializer.save()
 
 
-class UsersViewSet(viewsets.ModelViewSet):
-    queryset = models.Users.objects.all().order_by("-id")
-    serializer_class = serializers.UsersSerializer
-    permission_classes = [DefaultPermission]
+class SoftDeleteViewSetMixin(BaseViewSetMixin):
+    """
+    Mixin para viewsets que lidam com soft delete
+    """
+    def get_queryset(self):
+        """Retorna queryset sem objetos soft deleted"""
+        queryset = super().get_queryset()
+        if hasattr(queryset, 'with_deleted'):
+            return queryset  # Já filtra automaticamente
+        return queryset.filter(deleted_at__isnull=True)
+
+    @api_view(['POST'])
+    @permission_classes([permissions.IsAuthenticated])
+    def restore_view(self, request, pk=None):
+        """Endpoint para restaurar objeto soft deleted"""
+        instance = get_object_or_404(self.get_queryset().with_deleted(), pk=pk)
+        if hasattr(instance, 'restore'):
+            instance.restore()
+            return Response({'message': 'Objeto restaurado com sucesso'})
+        return Response(
+            {'error': 'Objeto não suporta restauração'}, 
+            status=status.HTTP_400_BAD_REQUEST
+        )
 
 
-class RolesViewSet(viewsets.ModelViewSet):
-    queryset = models.Roles.objects.all().order_by("-id")
-    serializer_class = serializers.RolesSerializer
-    permission_classes = [DefaultPermission]
+class FilterByClientMixin:
+    """
+    Mixin para filtrar por cliente do usuário
+    """
+    def get_queryset(self):
+        """Filtra queryset pelos clientes do usuário"""
+        queryset = super().get_queryset()
+        user_clients = self.request.user.client_members.values_list('client_id', flat=True)
+        return queryset.filter(client_id__in=user_clients)
 
 
-class UserRolesViewSet(viewsets.ModelViewSet):
-    queryset = models.UserRoles.objects.all().order_by("-id")
-    serializer_class = serializers.UserRolesSerializer
-    permission_classes = [DefaultPermission]
+class SearchMixin:
+    """
+    Mixin para funcionalidade de busca
+    """
+    search_fields = []
+    search_param = 'search'
+
+    def get_queryset(self):
+        """Adiciona funcionalidade de busca ao queryset"""
+        queryset = super().get_queryset()
+        search_term = self.request.query_params.get(self.search_param)
+        
+        if search_term and self.search_fields:
+            search_filters = Q()
+            for field in self.search_fields:
+                search_filters |= Q(**{f"{field}__icontains": search_term})
+            queryset = queryset.filter(search_filters)
+        
+        return queryset
 
 
-class EstablishmentsViewSet(viewsets.ModelViewSet):
-    queryset = models.Establishments.objects.all().order_by("-id")
-    serializer_class = serializers.EstablishmentsSerializer
-    permission_classes = [DefaultPermission]
+class PaginationMixin:
+    """
+    Mixin para paginação customizada
+    """
+    page_size = 20
+    page_size_param = 'page_size'
+    max_page_size = 100
+
+    def get_queryset(self):
+        """Aplica paginação ao queryset"""
+        queryset = super().get_queryset()
+        page_size = self.request.query_params.get(self.page_size_param, self.page_size)
+        
+        try:
+            page_size = int(page_size)
+            if page_size > self.max_page_size:
+                page_size = self.max_page_size
+        except (ValueError, TypeError):
+            page_size = self.page_size
+        
+        return queryset
 
 
-class SlotsViewSet(viewsets.ModelViewSet):
-    queryset = models.Slots.objects.all().order_by("-id")
-    serializer_class = serializers.SlotsSerializer
-    permission_classes = [DefaultPermission]
+class AuditMixin:
+    """
+    Mixin para auditoria de mudanças
+    """
+    def perform_create(self, serializer):
+        """Registra quem criou o objeto"""
+        serializer.save(created_by=self.request.user)
 
-
-class SlotStatusViewSet(viewsets.ModelViewSet):
-    queryset = models.SlotStatus.objects.all().order_by("-id")
-    serializer_class = serializers.SlotStatusSerializer
-    permission_classes = [DefaultPermission]
-
-
-class ApiKeysViewSet(viewsets.ModelViewSet):
-    queryset = models.ApiKeys.objects.all().order_by("-id")
-    serializer_class = serializers.ApiKeysSerializer
-    permission_classes = [DefaultPermission]
-
-
-class CamerasViewSet(viewsets.ModelViewSet):
-    queryset = models.Cameras.objects.all().order_by("-id")
-    serializer_class = serializers.CamerasSerializer
-    permission_classes = [DefaultPermission]
-
-
-class RefreshTokensViewSet(viewsets.ModelViewSet):
-    queryset = models.RefreshTokens.objects.all().order_by("-id")
-    serializer_class = serializers.RefreshTokensSerializer
-    permission_classes = [DefaultPermission]
-
-
-class ClientsViewSet(viewsets.ModelViewSet):
-    queryset = models.Clients.objects.all().order_by("-id")
-    serializer_class = serializers.ClientsSerializer
-    permission_classes = [DefaultPermission]
-
-
-class ClientMembersViewSet(viewsets.ModelViewSet):
-    queryset = models.ClientMembers.objects.all().order_by("-id")
-    serializer_class = serializers.ClientMembersSerializer
-    permission_classes = [DefaultPermission]
-
-
-class StoreTypesViewSet(viewsets.ModelViewSet):
-    queryset = models.StoreTypes.objects.all().order_by("-id")
-    serializer_class = serializers.StoreTypesSerializer
-    permission_classes = [DefaultPermission]
-
-
-class LotsViewSet(viewsets.ModelViewSet):
-    queryset = models.Lots.objects.all().order_by("-id")
-    serializer_class = serializers.LotsSerializer
-    permission_classes = [DefaultPermission]
-
-
-class SlotTypesViewSet(viewsets.ModelViewSet):
-    queryset = models.SlotTypes.objects.all().order_by("-id")
-    serializer_class = serializers.SlotTypesSerializer
-    permission_classes = [DefaultPermission]
-
-
-class VehicleTypesViewSet(viewsets.ModelViewSet):
-    queryset = models.VehicleTypes.objects.all().order_by("-id")
-    serializer_class = serializers.VehicleTypesSerializer
-    permission_classes = [DefaultPermission]
-
-
-class SlotStatusHistoryViewSet(viewsets.ModelViewSet):
-    queryset = models.SlotStatusHistory.objects.all().order_by("-id")
-    serializer_class = serializers.SlotStatusHistorySerializer
-    permission_classes = [DefaultPermission]
-
-
-class CameraHeartbeatsViewSet(viewsets.ModelViewSet):
-    queryset = models.CameraHeartbeats.objects.all().order_by("-id")
-    serializer_class = serializers.CameraHeartbeatsSerializer
-    permission_classes = [DefaultPermission]
-
-
-class SlotStatusEventsViewSet(viewsets.ModelViewSet):
-    queryset = models.SlotStatusEvents.objects.all().order_by("-id")
-    serializer_class = serializers.SlotStatusEventsSerializer
-    permission_classes = [DefaultPermission]
+    def perform_update(self, serializer):
+        """Registra quem atualizou o objeto"""
+        serializer.save(updated_by=self.request.user)

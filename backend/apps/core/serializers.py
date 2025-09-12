@@ -1,116 +1,65 @@
 from rest_framework import serializers
-from . import models
+from django.utils import timezone
 
 
-class PeopleSerializer(serializers.ModelSerializer):
+class BaseModelSerializer(serializers.ModelSerializer):
+    """
+    Serializer base com campos comuns
+    """
+    public_id = serializers.UUIDField(read_only=True)
+    created_at = serializers.DateTimeField(read_only=True)
+    updated_at = serializers.DateTimeField(read_only=True)
+    is_deleted = serializers.BooleanField(read_only=True)
+
     class Meta:
-        model = models.People
-        fields = "__all__"
+        fields = ['id', 'public_id', 'created_at', 'updated_at', 'is_deleted']
 
 
-class UsersSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.Users
-        fields = "__all__"
+class TenantModelSerializer(BaseModelSerializer):
+    """
+    Serializer base para models com tenant
+    """
+    client_name = serializers.CharField(source='client.name', read_only=True)
+
+    class Meta(BaseModelSerializer.Meta):
+        fields = BaseModelSerializer.Meta.fields + ['client', 'client_name']
 
 
-class RolesSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.Roles
-        fields = "__all__"
+class SoftDeleteSerializerMixin:
+    """
+    Mixin para serializers que lidam com soft delete
+    """
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data['is_deleted'] = instance.is_deleted
+        return data
 
 
-class UserRolesSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.UserRoles
-        fields = "__all__"
+class TimestampedSerializerMixin:
+    """
+    Mixin para serializers que lidam com timestamps
+    """
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        if hasattr(instance, 'created_at'):
+            data['created_at'] = instance.created_at
+        if hasattr(instance, 'updated_at'):
+            data['updated_at'] = instance.updated_at
+        return data
 
 
-class EstablishmentsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.Establishments
-        fields = "__all__"
+class ValidationMixin:
+    """
+    Mixin com validações comuns
+    """
+    def validate_deleted_at(self, value):
+        """Validação para deleted_at"""
+        if value and value > timezone.now():
+            raise serializers.ValidationError("deleted_at não pode ser no futuro")
+        return value
 
-
-class SlotsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.Slots
-        fields = "__all__"
-
-
-class SlotStatusSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.SlotStatus
-        fields = "__all__"
-
-
-class ApiKeysSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.ApiKeys
-        fields = "__all__"
-
-
-class CamerasSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.Cameras
-        fields = "__all__"
-
-
-class RefreshTokensSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.RefreshTokens
-        fields = "__all__"
-
-
-class ClientsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.Clients
-        fields = "__all__"
-
-
-class ClientMembersSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.ClientMembers
-        fields = "__all__"
-
-
-class StoreTypesSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.StoreTypes
-        fields = "__all__"
-
-
-class LotsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.Lots
-        fields = "__all__"
-
-
-class SlotTypesSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.SlotTypes
-        fields = "__all__"
-
-
-class VehicleTypesSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.VehicleTypes
-        fields = "__all__"
-
-
-class SlotStatusHistorySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.SlotStatusHistory
-        fields = "__all__"
-
-
-class CameraHeartbeatsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.CameraHeartbeats
-        fields = "__all__"
-
-
-class SlotStatusEventsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.SlotStatusEvents
-        fields = "__all__"
+    def validate_public_id(self, value):
+        """Validação para public_id"""
+        if value and self.Meta.model.objects.filter(public_id=value).exists():
+            raise serializers.ValidationError("public_id já existe")
+        return value

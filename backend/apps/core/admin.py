@@ -1,22 +1,2 @@
-from django.contrib import admin
-from . import models
-
-admin.site.register(models.People)
-admin.site.register(models.Users)
-admin.site.register(models.Roles)
-admin.site.register(models.UserRoles)
-admin.site.register(models.Establishments)
-admin.site.register(models.Slots)
-admin.site.register(models.SlotStatus)
-admin.site.register(models.ApiKeys)
-admin.site.register(models.Cameras)
-admin.site.register(models.RefreshTokens)
-admin.site.register(models.Clients)
-admin.site.register(models.ClientMembers)
-admin.site.register(models.StoreTypes)
-admin.site.register(models.Lots)
-admin.site.register(models.SlotTypes)
-admin.site.register(models.VehicleTypes)
-admin.site.register(models.SlotStatusHistory)
-admin.site.register(models.CameraHeartbeats)
-admin.site.register(models.SlotStatusEvents)
+# Este app core agora contém apenas configurações compartilhadas
+# Os models foram movidos para apps específicos e registrados em seus respectivos admin.py
