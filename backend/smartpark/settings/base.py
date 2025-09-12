@@ -35,7 +35,6 @@ INSTALLED_APPS = [
     "drf_spectacular",
     # apps do projeto
     "apps.core",
-    "apps.identity",
     "apps.tenants",
     "apps.catalog",
     "apps.hardware",

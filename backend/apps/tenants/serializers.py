@@ -1,6 +1,6 @@
 from rest_framework import serializers
+from django.contrib.auth.models import User, Group
 from .models import Clients, ClientMembers
-from apps.identity.models import Users, Roles
 from apps.core.serializers import BaseModelSerializer, SoftDeleteSerializerMixin
 
 
@@ -53,25 +53,25 @@ class ClientMemberSerializer(BaseModelSerializer, SoftDeleteSerializerMixin):
 
 class ClientMemberCreateSerializer(serializers.Serializer):
     user_id = serializers.IntegerField()
-    role_id = serializers.IntegerField()
+    group_id = serializers.IntegerField()
 
     def validate_user_id(self, value):
         try:
-            user = Users.objects.get(id=value)
+            user = User.objects.get(id=value)
             return value
-        except Users.DoesNotExist:
+        except User.DoesNotExist:
             raise serializers.ValidationError("Usuário não encontrado")
 
-    def validate_role_id(self, value):
+    def validate_group_id(self, value):
         try:
-            role = Roles.objects.get(id=value)
+            group = Group.objects.get(id=value)
             return value
-        except Roles.DoesNotExist:
-            raise serializers.ValidationError("Role não encontrada")
+        except Group.DoesNotExist:
+            raise serializers.ValidationError("Group não encontrado")
 
     def validate(self, attrs):
         user_id = attrs.get('user_id')
-        role_id = attrs.get('role_id')
+        group_id = attrs.get('group_id')
         client_id = self.context.get('client_id')
 
         # Verificar se o usuário já é membro deste cliente
@@ -90,5 +90,5 @@ class ClientMemberCreateSerializer(serializers.Serializer):
         return ClientMembers.objects.create(
             client_id=client_id,
             user_id=validated_data['user_id'],
-            role_id=validated_data['role_id']
+            group_id=validated_data['group_id']
         )

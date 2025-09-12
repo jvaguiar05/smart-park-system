@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User, Group
 from apps.core.models import BaseModel, SoftDeleteManager
 
 
@@ -37,13 +38,13 @@ class ClientMembers(BaseModel):
         related_name="client_members",
     )
     user = models.ForeignKey(
-        "identity.Users",
+        User,
         on_delete=models.PROTECT,
         db_column="user_id",
         related_name="client_members",
     )
     role = models.ForeignKey(
-        "identity.Roles",
+        Group,
         on_delete=models.PROTECT,
         db_column="role_id",
         related_name="client_members",
@@ -61,4 +62,4 @@ class ClientMembers(BaseModel):
         ]
 
     def __str__(self):
-        return f"{self.user.person.name} - {self.client.name} ({self.role.name})"
+        return f"{self.user.username} - {self.client.name} ({self.role.name})"

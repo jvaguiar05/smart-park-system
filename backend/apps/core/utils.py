@@ -81,7 +81,7 @@ def is_admin_user(user) -> bool:
     if not user or not user.is_authenticated:
         return False
     
-    return user.user_roles.filter(role__name='admin').exists()
+    return user.groups.filter(name='admin').exists()
 
 
 def is_client_admin(user) -> bool:
@@ -91,7 +91,7 @@ def is_client_admin(user) -> bool:
     if not user or not user.is_authenticated:
         return False
     
-    return user.user_roles.filter(role__name='client_admin').exists()
+    return user.groups.filter(name='client_admin').exists()
 
 
 def is_app_user(user) -> bool:
@@ -101,7 +101,7 @@ def is_app_user(user) -> bool:
     if not user or not user.is_authenticated:
         return False
     
-    return user.user_roles.filter(role__name='app_user').exists()
+    return user.groups.filter(name='app_user').exists()
 
 
 def get_user_role(user) -> Optional[str]:
@@ -111,13 +111,13 @@ def get_user_role(user) -> Optional[str]:
     if not user or not user.is_authenticated:
         return None
     
-    user_roles = user.user_roles.values_list('role__name', flat=True)
+    user_groups = user.groups.values_list('name', flat=True)
     
-    if 'admin' in user_roles:
+    if 'admin' in user_groups:
         return 'admin'
-    elif 'client_admin' in user_roles:
+    elif 'client_admin' in user_groups:
         return 'client_admin'
-    elif 'app_user' in user_roles:
+    elif 'app_user' in user_groups:
         return 'app_user'
     
     return None

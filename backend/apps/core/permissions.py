@@ -1,4 +1,5 @@
 from rest_framework import permissions
+from django.contrib.auth.models import Group
 from django.shortcuts import get_object_or_404
 
 
@@ -21,7 +22,7 @@ class IsAdminUser(BasePermission):
         return (
             request.user and 
             request.user.is_authenticated and 
-            request.user.user_roles.filter(role__name='admin').exists()
+            request.user.groups.filter(name='admin').exists()
         )
 
 
@@ -33,7 +34,7 @@ class IsClientAdmin(BasePermission):
         return (
             request.user and 
             request.user.is_authenticated and 
-            request.user.user_roles.filter(role__name='client_admin').exists()
+            request.user.groups.filter(name='client_admin').exists()
         )
 
 
@@ -45,7 +46,7 @@ class IsAppUser(BasePermission):
         return (
             request.user and 
             request.user.is_authenticated and 
-            request.user.user_roles.filter(role__name='app_user').exists()
+            request.user.groups.filter(name='app_user').exists()
         )
 
 
@@ -57,8 +58,8 @@ class IsClientAdminOrAdmin(BasePermission):
         if not (request.user and request.user.is_authenticated):
             return False
         
-        user_roles = request.user.user_roles.values_list('role__name', flat=True)
-        return 'admin' in user_roles or 'client_admin' in user_roles
+        user_groups = request.user.groups.values_list('name', flat=True)
+        return 'admin' in user_groups or 'client_admin' in user_groups
 
 
 class IsOwnerOrAdmin(BasePermission):
@@ -70,7 +71,7 @@ class IsOwnerOrAdmin(BasePermission):
             return False
         
         # Admin tem acesso a tudo
-        if request.user.user_roles.filter(role__name='admin').exists():
+        if request.user.groups.filter(name='admin').exists():
             return True
         
         # Verifica se é o dono do objeto
@@ -92,7 +93,7 @@ class IsClientMember(BasePermission):
             return False
         
         # Admin tem acesso a tudo
-        if request.user.user_roles.filter(role__name='admin').exists():
+        if request.user.groups.filter(name='admin').exists():
             return True
         
         # Verifica se é membro de algum cliente
@@ -108,11 +109,11 @@ class IsClientAdminForClient(BasePermission):
             return False
         
         # Admin tem acesso a tudo
-        if request.user.user_roles.filter(role__name='admin').exists():
+        if request.user.groups.filter(name='admin').exists():
             return True
         
         # Verifica se é client admin
-        if not request.user.user_roles.filter(role__name='client_admin').exists():
+        if not request.user.groups.filter(name='client_admin').exists():
             return False
         
         # Para views que precisam de client_id específico
@@ -135,7 +136,7 @@ class IsOwnerOrClientAdmin(BasePermission):
             return False
         
         # Admin tem acesso a tudo
-        if request.user.user_roles.filter(role__name='admin').exists():
+        if request.user.groups.filter(name='admin').exists():
             return True
         
         # Verifica se é o dono do objeto
@@ -163,7 +164,7 @@ class ReadOnlyOrAdmin(BasePermission):
         if request.method in permissions.SAFE_METHODS:
             return True
         
-        return request.user.user_roles.filter(role__name='admin').exists()
+        return request.user.groups.filter(name='admin').exists()
 
 
 class IsActiveUser(BasePermission):

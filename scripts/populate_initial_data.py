@@ -13,26 +13,26 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "..", "backend"))
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "smartpark.settings.dev")
 django.setup()
 
-from apps.identity.models import Roles
+from django.contrib.auth.models import Group
 from apps.catalog.models import StoreTypes, SlotTypes, VehicleTypes
 
 
-def create_roles():
-    """Criar roles básicos do sistema"""
-    roles_data = [
+def create_groups():
+    """Criar grupos básicos do sistema"""
+    groups_data = [
         {"name": "admin"},
         {"name": "client_admin"},
         {"name": "app_user"},
     ]
 
-    for role_data in roles_data:
-        role, created = Roles.objects.get_or_create(
-            name=role_data["name"], defaults=role_data
+    for group_data in groups_data:
+        group, created = Group.objects.get_or_create(
+            name=group_data["name"], defaults=group_data
         )
         if created:
-            print(f"✓ Role '{role.name}' criado")
+            print(f"✓ Group '{group.name}' criado")
         else:
-            print(f"- Role '{role.name}' já existe")
+            print(f"- Group '{group.name}' já existe")
 
 
 def create_store_types():
@@ -112,8 +112,8 @@ def main():
     print("🚀 Populando banco de dados com dados iniciais...")
     print()
 
-    print("📋 Criando roles...")
-    create_roles()
+    print("📋 Criando groups...")
+    create_groups()
     print()
 
     print("🏪 Criando tipos de estabelecimento...")
