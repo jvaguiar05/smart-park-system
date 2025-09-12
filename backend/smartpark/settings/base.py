@@ -11,7 +11,7 @@ env = environ.Env(
     DJANGO_DEBUG=(bool, False),
     DJANGO_SECRET_KEY=(str, "CHANGE_ME"),
     DJANGO_ALLOWED_HOSTS=(list, ["*"]),
-    DATABASE_URL=(str, "postgresql://postgres:postgres@localhost:5432/smartpark"),
+    DATABASE_URL=(str, "postgresql://postgres:postgres@localhost:5432/smart-park-db"),
     CORS_ALLOWED_ORIGINS=(list, []),
 )
 environ.Env.read_env(ROOT_DIR / ".env")
@@ -35,6 +35,11 @@ INSTALLED_APPS = [
     "drf_spectacular",
     # apps do projeto
     "apps.core",
+    "apps.identity",
+    "apps.tenants",
+    "apps.catalog",
+    "apps.hardware",
+    "apps.events",
 ]
 
 MIDDLEWARE = [
