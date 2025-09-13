@@ -34,8 +34,8 @@ class ClientMemberSerializer(BaseModelSerializer, SoftDeleteSerializerMixin):
     def get_user(self, obj):
         return {
             'id': obj.user.id,
-            'name': obj.user.person.name,
-            'email': obj.user.person.email
+            'name': obj.user.get_full_name() or obj.user.username,
+            'email': obj.user.email
         }
 
     def get_role(self, obj):
@@ -90,5 +90,5 @@ class ClientMemberCreateSerializer(serializers.Serializer):
         return ClientMembers.objects.create(
             client_id=client_id,
             user_id=validated_data['user_id'],
-            group_id=validated_data['group_id']
+            role_id=validated_data['group_id']
         )
