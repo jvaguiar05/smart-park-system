@@ -37,15 +37,15 @@ class ClientsAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
         return queryset.annotate(
-            members_count=Count("clientmembers"),
-            establishments_count=Count("establishments"),
+            members_count=Count("client_members"),
+            establishments_count=Count("establishments_set"),
         )
 
     def members_count(self, obj):
         count = (
             obj.members_count
             if hasattr(obj, "members_count")
-            else obj.clientmembers.count()
+            else obj.client_members.count()
         )
         url = (
             reverse("admin:tenants_clientmembers_changelist")
@@ -59,7 +59,7 @@ class ClientsAdmin(admin.ModelAdmin):
         count = (
             obj.establishments_count
             if hasattr(obj, "establishments_count")
-            else obj.establishments.count()
+            else obj.establishments_set.count()
         )
         if count > 0:
             url = (

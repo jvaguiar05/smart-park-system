@@ -2,7 +2,9 @@
 ipython
 pytest
 pytest-django
+pytest-cov
 model-bakery
+coverage
 black
 ruff
 mypy
