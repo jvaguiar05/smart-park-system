@@ -2,6 +2,15 @@
 
 Este guia fornece instruções completas para executar testes e análises de cobertura no projeto Smart Park System.
 
+## 🔗 Estrutura de URLs
+
+O projeto utiliza o padrão de URLs: `host/api/app-name/entity`
+
+Exemplos:
+- `host/api/tenants/clients/`
+- `host/api/hardware/cameras/`
+- `host/api/catalog/establishments/`
+
 ## 📋 Pré-requisitos
 
 Certifique-se de que o ambiente virtual está ativado e as dependências estão instaladas:

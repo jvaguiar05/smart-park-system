@@ -16,18 +16,18 @@ class UrlsTest(TestCase):
     def test_client_list_url_resolves(self):
         """Testa resolução da URL de listagem de clientes"""
         url = reverse("tenants:client-list")
-        self.assertEqual(url, "/api/clients/")
+        self.assertEqual(url, "/api/tenants/clients/")
 
-        resolver = resolve("/api/clients/")
+        resolver = resolve("/api/tenants/clients/")
         self.assertEqual(resolver.view_name, "tenants:client-list")
         self.assertEqual(resolver.func.view_class, views.ClientListCreateView)
 
     def test_client_detail_url_resolves(self):
         """Testa resolução da URL de detalhes de cliente"""
         url = reverse("tenants:client-detail", kwargs={"pk": 1})
-        self.assertEqual(url, "/api/clients/1/")
+        self.assertEqual(url, "/api/tenants/clients/1/")
 
-        resolver = resolve("/api/clients/1/")
+        resolver = resolve("/api/tenants/clients/1/")
         self.assertEqual(resolver.view_name, "tenants:client-detail")
         self.assertEqual(resolver.func.view_class, views.ClientDetailView)
         self.assertEqual(resolver.kwargs, {"pk": 1})
@@ -39,17 +39,17 @@ class UrlsTest(TestCase):
         for pk in test_pks:
             with self.subTest(pk=pk):
                 url = reverse("tenants:client-detail", kwargs={"pk": pk})
-                self.assertEqual(url, f"/api/clients/{pk}/")
+                self.assertEqual(url, f"/api/tenants/clients/{pk}/")
 
-                resolver = resolve(f"/api/clients/{pk}/")
+                resolver = resolve(f"/api/tenants/clients/{pk}/")
                 self.assertEqual(resolver.kwargs, {"pk": pk})
 
     def test_client_member_list_url_resolves(self):
         """Testa resolução da URL de listagem de membros"""
         url = reverse("tenants:client-member-list", kwargs={"client_id": 1})
-        self.assertEqual(url, "/api/clients/1/members/")
+        self.assertEqual(url, "/api/tenants/clients/1/members/")
 
-        resolver = resolve("/api/clients/1/members/")
+        resolver = resolve("/api/tenants/clients/1/members/")
         self.assertEqual(resolver.view_name, "tenants:client-member-list")
         self.assertEqual(resolver.func.view_class, views.ClientMemberListView)
         self.assertEqual(resolver.kwargs, {"client_id": 1})
@@ -57,9 +57,9 @@ class UrlsTest(TestCase):
     def test_client_member_detail_url_resolves(self):
         """Testa resolução da URL de detalhes de membro"""
         url = reverse("tenants:client-member-detail", kwargs={"client_id": 1, "pk": 2})
-        self.assertEqual(url, "/api/clients/1/members/2/")
+        self.assertEqual(url, "/api/tenants/clients/1/members/2/")
 
-        resolver = resolve("/api/clients/1/members/2/")
+        resolver = resolve("/api/tenants/clients/1/members/2/")
         self.assertEqual(resolver.view_name, "tenants:client-member-detail")
         self.assertEqual(resolver.func.view_class, views.ClientMemberDetailView)
         self.assertEqual(resolver.kwargs, {"client_id": 1, "pk": 2})
@@ -74,7 +74,7 @@ class UrlsTest(TestCase):
                 list_url = reverse(
                     "tenants:client-member-list", kwargs={"client_id": client_id}
                 )
-                self.assertEqual(list_url, f"/api/clients/{client_id}/members/")
+                self.assertEqual(list_url, f"/api/tenants/clients/{client_id}/members/")
 
                 # Testar detalhes de membro
                 detail_url = reverse(
@@ -82,15 +82,15 @@ class UrlsTest(TestCase):
                     kwargs={"client_id": client_id, "pk": member_id},
                 )
                 self.assertEqual(
-                    detail_url, f"/api/clients/{client_id}/members/{member_id}/"
+                    detail_url, f"/api/tenants/clients/{client_id}/members/{member_id}/"
                 )
 
     def test_my_clients_url_resolves(self):
         """Testa resolução da URL de meus clientes"""
         url = reverse("tenants:my-clients")
-        self.assertEqual(url, "/api/my-clients/")
+        self.assertEqual(url, "/api/tenants/my-clients/")
 
-        resolver = resolve("/api/my-clients/")
+        resolver = resolve("/api/tenants/my-clients/")
         self.assertEqual(resolver.view_name, "tenants:my-clients")
         self.assertEqual(resolver.func, views.my_clients_view)
 
@@ -118,7 +118,7 @@ class UrlsTest(TestCase):
                 try:
                     url = reverse(f"tenants:{url_name}", kwargs=kwargs)
                     self.assertIsInstance(url, str)
-                    self.assertTrue(url.startswith("/api/"))
+                    self.assertTrue(url.startswith("/api/tenants/"))
                 except NoReverseMatch:
                     self.fail(f"URL name 'tenants:{url_name}' not found")
 
@@ -157,9 +157,9 @@ class UrlsTest(TestCase):
     def test_invalid_url_patterns_fail(self):
         """Testa se URLs inválidas falham adequadamente"""
         invalid_urls = [
-            "/api/clients/invalid/",  # PK não numérico
-            "/api/clients/1/members/invalid/",  # Member PK não numérico
-            "/api/nonexistent/",  # URL inexistente
+            "/api/tenants/clients/invalid/",  # PK não numérico
+            "/api/tenants/clients/1/members/invalid/",  # Member PK não numérico
+            "/api/tenants/nonexistent/",  # URL inexistente
         ]
 
         for invalid_url in invalid_urls:
@@ -178,8 +178,8 @@ class UrlsTest(TestCase):
         """Testa se o namespace das URLs funciona corretamente"""
         # Testar URLs com namespace
         namespaced_urls = [
-            ("tenants:client-list", "/api/clients/"),
-            ("tenants:my-clients", "/api/my-clients/"),
+            ("tenants:client-list", "/api/tenants/clients/"),
+            ("tenants:my-clients", "/api/tenants/my-clients/"),
         ]
 
         for namespaced_name, expected_url in namespaced_urls:
@@ -208,11 +208,11 @@ class UrlsTest(TestCase):
     def test_url_trailing_slashes(self):
         """Testa se as URLs têm trailing slashes adequadas"""
         urls_with_slashes = [
-            "/api/clients/",
-            "/api/clients/1/",
-            "/api/clients/1/members/",
-            "/api/clients/1/members/1/",
-            "/api/my-clients/",
+            "/api/tenants/clients/",
+            "/api/tenants/clients/1/",
+            "/api/tenants/clients/1/members/",
+            "/api/tenants/clients/1/members/1/",
+            "/api/tenants/my-clients/",
         ]
 
         for url in urls_with_slashes:
