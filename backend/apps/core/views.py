@@ -93,14 +93,29 @@ class SearchMixin:
 
     def get_queryset(self):
         """Adiciona funcionalidade de busca ao queryset"""
-        queryset = super().get_queryset()
+        # Get base queryset from view's queryset attribute first
+        if hasattr(self, 'queryset') and self.queryset is not None:
+            queryset = self.queryset._clone()
+        else:
+            # Try to get from super() or model
+            try:
+                queryset = super().get_queryset()
+            except AttributeError:
+                queryset = self.get_serializer_class().Meta.model.objects.all()
+        
         search_term = self.request.query_params.get(self.search_param)
         
         if search_term and self.search_fields:
-            search_filters = Q()
+            search_filters = None
             for field in self.search_fields:
-                search_filters |= Q(**{f"{field}__icontains": search_term})
-            queryset = queryset.filter(search_filters)
+                field_filter = Q(**{f"{field}__icontains": search_term})
+                if search_filters is None:
+                    search_filters = field_filter
+                else:
+                    search_filters |= field_filter
+            
+            if search_filters:
+                queryset = queryset.filter(search_filters)
         
         return queryset
 
