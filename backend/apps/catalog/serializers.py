@@ -1,15 +1,26 @@
 from rest_framework import serializers
+from typing import Dict, Any, Optional
 from .models import (
-    StoreTypes, Establishments, Lots, Slots, SlotTypes, 
-    VehicleTypes, SlotStatus, SlotStatusHistory
+    StoreTypes,
+    Establishments,
+    Lots,
+    Slots,
+    SlotTypes,
+    VehicleTypes,
+    SlotStatus,
+    SlotStatusHistory,
 )
-from apps.core.serializers import BaseModelSerializer, TenantModelSerializer, SoftDeleteSerializerMixin
+from apps.core.serializers import (
+    BaseModelSerializer,
+    TenantModelSerializer,
+    SoftDeleteSerializerMixin,
+)
 
 
 class StoreTypeSerializer(BaseModelSerializer, SoftDeleteSerializerMixin):
     class Meta(BaseModelSerializer.Meta):
         model = StoreTypes
-        fields = BaseModelSerializer.Meta.fields + ['name']
+        fields = BaseModelSerializer.Meta.fields + ["name"]
 
 
 class EstablishmentSerializer(TenantModelSerializer, SoftDeleteSerializerMixin):
@@ -19,8 +30,14 @@ class EstablishmentSerializer(TenantModelSerializer, SoftDeleteSerializerMixin):
     class Meta(TenantModelSerializer.Meta):
         model = Establishments
         fields = TenantModelSerializer.Meta.fields + [
-            'name', 'store_type', 'store_type_id',
-            'address', 'city', 'state', 'lat', 'lng'
+            "name",
+            "store_type",
+            "store_type_id",
+            "address",
+            "city",
+            "state",
+            "lat",
+            "lng",
         ]
 
 
@@ -31,20 +48,23 @@ class LotSerializer(TenantModelSerializer, SoftDeleteSerializerMixin):
     class Meta(TenantModelSerializer.Meta):
         model = Lots
         fields = TenantModelSerializer.Meta.fields + [
-            'establishment', 'establishment_id', 'lot_code', 'name'
+            "establishment",
+            "establishment_id",
+            "lot_code",
+            "name",
         ]
 
 
 class SlotTypeSerializer(BaseModelSerializer, SoftDeleteSerializerMixin):
     class Meta(BaseModelSerializer.Meta):
         model = SlotTypes
-        fields = BaseModelSerializer.Meta.fields + ['name']
+        fields = BaseModelSerializer.Meta.fields + ["name"]
 
 
 class VehicleTypeSerializer(BaseModelSerializer, SoftDeleteSerializerMixin):
     class Meta(BaseModelSerializer.Meta):
         model = VehicleTypes
-        fields = BaseModelSerializer.Meta.fields + ['name']
+        fields = BaseModelSerializer.Meta.fields + ["name"]
 
 
 class SlotSerializer(TenantModelSerializer, SoftDeleteSerializerMixin):
@@ -57,19 +77,27 @@ class SlotSerializer(TenantModelSerializer, SoftDeleteSerializerMixin):
     class Meta(TenantModelSerializer.Meta):
         model = Slots
         fields = TenantModelSerializer.Meta.fields + [
-            'lot', 'lot_id', 'slot_code', 'slot_type', 'slot_type_id', 
-            'polygon_json', 'active', 'current_status'
+            "lot",
+            "lot_id",
+            "slot_code",
+            "slot_type",
+            "slot_type_id",
+            "polygon_json",
+            "active",
+            "current_status",
         ]
 
-    def get_current_status(self, obj):
+    def get_current_status(self, obj: Slots) -> Optional[Dict[str, Any]]:
         try:
             status = obj.current_status.first()
             if status:
                 return {
-                    'status': status.status,
-                    'vehicle_type': status.vehicle_type.name if status.vehicle_type else None,
-                    'confidence': status.confidence,
-                    'changed_at': status.changed_at
+                    "status": status.status,
+                    "vehicle_type": (
+                        status.vehicle_type.name if status.vehicle_type else None
+                    ),
+                    "confidence": status.confidence,
+                    "changed_at": status.changed_at,
                 }
         except:
             pass
@@ -85,8 +113,13 @@ class SlotStatusSerializer(BaseModelSerializer, SoftDeleteSerializerMixin):
     class Meta(BaseModelSerializer.Meta):
         model = SlotStatus
         fields = BaseModelSerializer.Meta.fields + [
-            'slot', 'slot_id', 'status', 'vehicle_type', 
-            'vehicle_type_id', 'confidence', 'changed_at'
+            "slot",
+            "slot_id",
+            "status",
+            "vehicle_type",
+            "vehicle_type_id",
+            "confidence",
+            "changed_at",
         ]
 
 
@@ -97,8 +130,12 @@ class SlotStatusHistorySerializer(BaseModelSerializer, SoftDeleteSerializerMixin
     class Meta(BaseModelSerializer.Meta):
         model = SlotStatusHistory
         fields = BaseModelSerializer.Meta.fields + [
-            'slot', 'status', 'vehicle_type', 'confidence',
-            'event_id', 'recorded_at'
+            "slot",
+            "status",
+            "vehicle_type",
+            "confidence",
+            "event_id",
+            "recorded_at",
         ]
 
 

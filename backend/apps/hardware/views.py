@@ -13,6 +13,7 @@ from .serializers import (
     CameraCreateSerializer,
     CameraHeartbeatSerializer,
     CameraHeartbeatCreateSerializer,
+    SlotStatusEventSerializer,
 )
 from apps.core.permissions import IsClientAdminForClient, IsClientMember
 from apps.core.views import (
@@ -157,6 +158,8 @@ class CameraHeartbeatListView(
     def get_queryset(self):
         from .models import CameraHeartbeats
 
+        if getattr(self, "swagger_fake_view", False):
+            return CameraHeartbeats.objects.none()
         camera_id = self.kwargs["camera_id"]
         return CameraHeartbeats.objects.filter(camera_id=camera_id).order_by(
             "-received_at"
@@ -167,27 +170,7 @@ class CameraHeartbeatListView(
     summary="Receive slot status event from hardware",
     description="Endpoint for hardware to report slot status changes",
     tags=["Hardware Integration"],
-    request={
-        "type": "object",
-        "properties": {
-            "slot_id": {"type": "integer", "description": "ID da vaga"},
-            "status": {
-                "type": "string",
-                "description": "Status da vaga (FREE, OCCUPIED)",
-            },
-            "vehicle_type_id": {
-                "type": "integer",
-                "description": "ID do tipo de veículo",
-                "nullable": True,
-            },
-            "confidence": {
-                "type": "number",
-                "format": "float",
-                "description": "Confiança da detecção",
-            },
-        },
-        "required": ["slot_id", "status"],
-    },
+    request=SlotStatusEventSerializer,
     responses={
         200: {"description": "Event processed successfully"},
         400: {"description": "Bad request - missing required fields"},
@@ -200,17 +183,16 @@ def slot_status_event_view(request):
     # TODO: Implementar validação de API Key e HMAC
     # Por enquanto, aceitar qualquer requisição
 
-    try:
-        slot_id = request.data.get("slot_id")
-        slot_status_value = request.data.get("status")
-        vehicle_type_id = request.data.get("vehicle_type_id")
-        confidence = request.data.get("confidence")
+    serializer = SlotStatusEventSerializer(data=request.data)
+    if not serializer.is_valid():
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        if not slot_id or not slot_status_value:
-            return Response(
-                {"error": "slot_id e status são obrigatórios"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+    try:
+        validated_data = serializer.validated_data
+        slot_id = validated_data["slot_id"]
+        slot_status_value = validated_data["status"]
+        vehicle_type_id = validated_data.get("vehicle_type_id")
+        confidence = validated_data.get("confidence")
 
         # Buscar a vaga
         slot = get_object_or_404(Slots, id=slot_id)

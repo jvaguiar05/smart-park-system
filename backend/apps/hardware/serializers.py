@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from typing import Dict, Any, Optional
 from .models import ApiKeys, Cameras, CameraHeartbeats
 from apps.core.serializers import (
     BaseModelSerializer,
@@ -53,12 +54,12 @@ class CameraSerializer(TenantModelSerializer, SoftDeleteSerializerMixin):
             "last_seen_at",
         ]
 
-    def get_establishment(self, obj):
+    def get_establishment(self, obj: Cameras) -> Optional[Dict[str, Any]]:
         if obj.establishment:
             return {"id": obj.establishment.id, "name": obj.establishment.name}
         return None
 
-    def get_lot(self, obj):
+    def get_lot(self, obj: Cameras) -> Optional[Dict[str, Any]]:
         if obj.lot:
             return {
                 "id": obj.lot.id,
@@ -126,3 +127,28 @@ class CameraHeartbeatCreateSerializer(serializers.Serializer):
         return CameraHeartbeats.objects.create(
             camera=camera, payload_json=validated_data.get("payload_json")
         )
+
+
+class SlotStatusEventSerializer(serializers.Serializer):
+    slot_id = serializers.IntegerField()
+    status = serializers.CharField(max_length=20)
+    vehicle_type_id = serializers.IntegerField(required=False, allow_null=True)
+    confidence = serializers.DecimalField(
+        max_digits=4, decimal_places=3, required=False, allow_null=True
+    )
+
+    def validate_status(self, value):
+        # Assume that valid statuses are defined somewhere
+        valid_statuses = ["FREE", "OCCUPIED"]  # Add other valid statuses as needed
+        if value not in valid_statuses:
+            raise serializers.ValidationError("Status inválido")
+        return value
+
+    def validate_slot_id(self, value):
+        from apps.catalog.models import Slots
+
+        try:
+            Slots.objects.get(id=value)
+            return value
+        except Slots.DoesNotExist:
+            raise serializers.ValidationError("Vaga não encontrada")

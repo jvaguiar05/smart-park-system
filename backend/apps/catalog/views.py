@@ -215,6 +215,8 @@ class SlotListCreateView(
 
     def get_queryset(self):
         """Override to ensure SearchMixin is called and filter by lot"""
+        if getattr(self, "swagger_fake_view", False):
+            return Slots.objects.none()
         lot_id = self.kwargs["lot_id"]
         queryset = super().get_queryset().filter(lot_id=lot_id)
         return apply_search_filter(self, queryset)

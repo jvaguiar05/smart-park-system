@@ -90,6 +90,8 @@ class ClientMemberListView(
     search_fields = ["user__person__name", "user__person__email", "role__name"]
 
     def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return ClientMembers.objects.none()
         client_id = self.kwargs["client_id"]
         return ClientMembers.objects.filter(client_id=client_id)
 
@@ -130,6 +132,8 @@ class ClientMemberDetailView(BaseViewSetMixin, generics.RetrieveDestroyAPIView):
     permission_classes = [IsClientAdminForClient]
 
     def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return ClientMembers.objects.none()
         client_id = self.kwargs["client_id"]
         return ClientMembers.objects.filter(client_id=client_id)
 
