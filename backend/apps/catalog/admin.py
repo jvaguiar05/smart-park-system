@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.utils.html import format_html
+from django.utils.html import format_html, mark_safe
 from django.urls import reverse
 from django.db.models import Count, Q
 from django.utils import timezone
@@ -154,13 +154,10 @@ class EstablishmentsAdmin(admin.ModelAdmin):
             color = (
                 "red" if percentage > 80 else "orange" if percentage > 50 else "green"
             )
-            return format_html(
-                '<span style="color: {};">{}/{} ({:.1f}%)</span>',
-                color,
-                count,
-                total,
-                percentage,
-            )
+            # Manually format to avoid SafeString issues
+            percentage_str = f"{percentage:.1f}"
+            html = f'<span style="color: {color};">{count}/{total} ({percentage_str}%)</span>'
+            return mark_safe(html)
         return "0/0"
 
     occupied_slots.short_description = "Ocupação"
@@ -218,13 +215,10 @@ class LotsAdmin(admin.ModelAdmin):
             color = (
                 "red" if percentage > 80 else "orange" if percentage > 50 else "green"
             )
-            return format_html(
-                '<span style="color: {};">{}/{} ({:.1f}%)</span>',
-                color,
-                count,
-                total,
-                percentage,
-            )
+            # Manually format to avoid SafeString issues
+            percentage_str = f"{percentage:.1f}"
+            html = f'<span style="color: {color};">{count}/{total} ({percentage_str}%)</span>'
+            return mark_safe(html)
         return "0/0"
 
     occupied_slots.short_description = "Ocupação"
@@ -280,7 +274,8 @@ class SlotsAdmin(admin.ModelAdmin):
 
     def current_status_display(self, obj):
         try:
-            status = obj.current_status
+            # Get the single current status (unique constraint ensures only one)
+            status = obj.current_status.get()
             colors = {
                 "FREE": "green",
                 "OCCUPIED": "red",
@@ -300,7 +295,7 @@ class SlotsAdmin(admin.ModelAdmin):
 
     def last_status_change(self, obj):
         try:
-            status = obj.current_status
+            status = obj.current_status.get()
             return status.changed_at.strftime("%d/%m %H:%M")
         except:
             return "-"
@@ -309,7 +304,7 @@ class SlotsAdmin(admin.ModelAdmin):
 
     def current_status_info(self, obj):
         try:
-            status = obj.current_status
+            status = obj.current_status.get()
             info = f"Status: {status.get_status_display()}<br>"
             info += f"Alterado em: {status.changed_at}<br>"
             if status.vehicle_type:
@@ -410,12 +405,13 @@ class SlotStatusAdmin(admin.ModelAdmin):
         if obj.confidence:
             color = (
                 "green"
-                if obj.confidence >= 90
-                else "orange" if obj.confidence >= 70 else "red"
+                if obj.confidence >= 9
+                else "orange" if obj.confidence >= 7 else "red"
             )
-            return format_html(
-                '<span style="color: {};">{:.1f}%</span>', color, obj.confidence
-            )
+            # Manually format to avoid SafeString issues
+            confidence_str = f"{obj.confidence:.1f}"
+            html = f'<span style="color: {color};">{confidence_str}%</span>'
+            return mark_safe(html)
         return "-"
 
     confidence_display.short_description = "Confiança"
@@ -451,12 +447,13 @@ class SlotStatusHistoryAdmin(admin.ModelAdmin):
         if obj.confidence:
             color = (
                 "green"
-                if obj.confidence >= 90
-                else "orange" if obj.confidence >= 70 else "red"
+                if obj.confidence >= 9
+                else "orange" if obj.confidence >= 7 else "red"
             )
-            return format_html(
-                '<span style="color: {};">{:.1f}%</span>', color, obj.confidence
-            )
+            # Manually format to avoid SafeString issues
+            confidence_str = f"{obj.confidence:.1f}"
+            html = f'<span style="color: {color};">{confidence_str}%</span>'
+            return mark_safe(html)
         return "-"
 
     confidence_display.short_description = "Confiança"

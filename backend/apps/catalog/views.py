@@ -3,6 +3,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
+from django.db.models import Q
 from drf_spectacular.utils import extend_schema, extend_schema_view
 
 from .models import (
@@ -12,6 +13,7 @@ from .models import (
     Slots,
     SlotTypes,
     VehicleTypes,
+    SlotStatus,
     SlotStatusHistory,
 )
 from .serializers import (
@@ -35,6 +37,26 @@ from apps.core.views import (
 )
 
 
+def apply_search_filter(view_instance, queryset):
+    """Helper function to apply search filtering to a queryset"""
+    search_term = view_instance.request.query_params.get("search")
+    if (
+        search_term
+        and hasattr(view_instance, "search_fields")
+        and view_instance.search_fields
+    ):
+        search_filters = None
+        for field in view_instance.search_fields:
+            field_filter = Q(**{f"{field}__icontains": search_term})
+            if search_filters is None:
+                search_filters = field_filter
+            else:
+                search_filters |= field_filter
+        if search_filters:
+            queryset = queryset.filter(search_filters)
+    return queryset
+
+
 @extend_schema(
     summary="List store types",
     description="Retrieve list of available store types",
@@ -47,6 +69,27 @@ class StoreTypeListView(
     serializer_class = StoreTypeSerializer
     permission_classes = [permissions.IsAuthenticated]
     search_fields = ["name"]
+
+    def get_queryset(self):
+        """Override to ensure SearchMixin is called"""
+        queryset = self.queryset._clone()
+        search_term = self.request.query_params.get("search")
+
+        if search_term and self.search_fields:
+            from django.db.models import Q
+
+            search_filters = None
+            for field in self.search_fields:
+                field_filter = Q(**{f"{field}__icontains": search_term})
+                if search_filters is None:
+                    search_filters = field_filter
+                else:
+                    search_filters |= field_filter
+
+            if search_filters:
+                queryset = queryset.filter(search_filters)
+
+        return queryset
 
 
 @extend_schema_view(
@@ -67,6 +110,11 @@ class EstablishmentListCreateView(
     serializer_class = EstablishmentSerializer
     permission_classes = [IsClientMember]
     search_fields = ["name", "address", "city", "state"]
+
+    def get_queryset(self):
+        """Override to ensure SearchMixin is called"""
+        queryset = super().get_queryset()
+        return apply_search_filter(self, queryset)
 
 
 @extend_schema_view(
@@ -117,6 +165,11 @@ class LotListCreateView(
     permission_classes = [IsClientMember]
     search_fields = ["lot_code", "name"]
 
+    def get_queryset(self):
+        """Override to ensure SearchMixin is called"""
+        queryset = super().get_queryset()
+        return apply_search_filter(self, queryset)
+
 
 @extend_schema_view(
     get=extend_schema(
@@ -161,8 +214,10 @@ class SlotListCreateView(
     search_fields = ["slot_code"]
 
     def get_queryset(self):
+        """Override to ensure SearchMixin is called and filter by lot"""
         lot_id = self.kwargs["lot_id"]
-        return super().get_queryset().filter(lot_id=lot_id)
+        queryset = super().get_queryset().filter(lot_id=lot_id)
+        return apply_search_filter(self, queryset)
 
     def perform_create(self, serializer):
         lot_id = self.kwargs["lot_id"]
@@ -207,6 +262,11 @@ class SlotTypeListView(
     permission_classes = [permissions.IsAuthenticated]
     search_fields = ["name"]
 
+    def get_queryset(self):
+        """Override to ensure SearchMixin is called"""
+        queryset = self.queryset._clone()
+        return apply_search_filter(self, queryset)
+
 
 @extend_schema(
     summary="List vehicle types",
@@ -220,6 +280,11 @@ class VehicleTypeListView(
     serializer_class = VehicleTypeSerializer
     permission_classes = [permissions.IsAuthenticated]
     search_fields = ["name"]
+
+    def get_queryset(self):
+        """Override to ensure SearchMixin is called"""
+        queryset = self.queryset._clone()
+        return apply_search_filter(self, queryset)
 
 
 @extend_schema_view(
@@ -239,9 +304,20 @@ class VehicleTypeListView(
         tags=["Slot Status"],
     ),
 )
-class SlotStatusDetailView(FilterByClientMixin, generics.RetrieveUpdateAPIView):
+class SlotStatusDetailView(generics.RetrieveUpdateAPIView):
+    queryset = SlotStatus.objects.all()
     serializer_class = SlotStatusSerializer
     permission_classes = [IsClientMember]
+
+    def get_queryset(self):
+        # Filter SlotStatus by client through slot->lot->establishment->client relationship
+        user_clients = [
+            membership.client.id
+            for membership in self.request.user.client_members.all()
+        ]
+        return self.queryset.filter(
+            slot__lot__establishment__client__id__in=user_clients
+        )
 
     def update(self, request, *args, **kwargs):
         slot_status = self.get_object()
@@ -282,16 +358,29 @@ class SlotStatusDetailView(FilterByClientMixin, generics.RetrieveUpdateAPIView):
     description="Retrieve paginated history of status changes for a specific slot",
     tags=["Slot Status History"],
 )
-class SlotStatusHistoryListView(
-    FilterByClientMixin, SearchMixin, PaginationMixin, generics.ListAPIView
-):
+class SlotStatusHistoryListView(SearchMixin, PaginationMixin, generics.ListAPIView):
+    queryset = SlotStatusHistory.objects.all()
     serializer_class = SlotStatusHistorySerializer
     permission_classes = [IsClientMember]
     search_fields = ["status", "event_id"]
 
     def get_queryset(self):
+        """Override to ensure SearchMixin is called and filter by client and slot"""
         slot_id = self.kwargs["slot_id"]
-        return super().get_queryset().filter(slot_id=slot_id).order_by("-recorded_at")
+        # Filter SlotStatusHistory by client through slot->lot->establishment->client relationship
+        user_clients = [
+            membership.client.id
+            for membership in self.request.user.client_members.all()
+        ]
+        queryset = (
+            super()
+            .get_queryset()
+            .filter(
+                slot_id=slot_id, slot__lot__establishment__client__id__in=user_clients
+            )
+            .order_by("-recorded_at")
+        )
+        return apply_search_filter(self, queryset)
 
 
 @extend_schema(
@@ -380,8 +469,10 @@ def public_slot_status_view(request, establishment_id):
     establishment = get_object_or_404(Establishments, id=establishment_id)
 
     lots = Lots.objects.filter(establishment=establishment)
-    slots = Slots.objects.filter(lot__in=lots, active=True).select_related(
-        "lot", "current_status", "current_status__vehicle_type"
+    slots = (
+        Slots.objects.filter(lot__in=lots, active=True)
+        .select_related("lot")
+        .prefetch_related("current_status", "current_status__vehicle_type")
     )
 
     data = []
