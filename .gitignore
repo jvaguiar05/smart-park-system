@@ -2,6 +2,7 @@
 __pycache__/
 *.pyc
 .env
+.env.template
 *.sqlite3
 .DS_Store
 .trunk/
