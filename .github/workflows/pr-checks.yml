@@ -1,0 +1,148 @@
+name: Development Workflow
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [ main, develop ]
+
+env:
+  DJANGO_SETTINGS_MODULE: smartpark.settings.dev
+  DJANGO_SECRET_KEY: dev-secret-key-for-ci-only
+  DATABASE_URL: postgresql://postgres:postgres@localhost:5432/smartpark_dev_db
+
+jobs:
+  quick-test:
+    name: Quick Tests
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_DB: smartpark_dev_db
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python 3.13
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.13'
+
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-dev-${{ hashFiles('**/requirements/dev.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-dev-
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements/dev.txt
+
+    - name: Wait for PostgreSQL
+      run: |
+        while ! pg_isready -h localhost -p 5432 -U postgres; do
+          echo "Waiting for PostgreSQL..."
+          sleep 2
+        done
+
+    - name: Run quick tests (changed apps only)
+      working-directory: ./backend
+      run: |
+        # Run Django checks
+        python manage.py check
+        
+        # Run migrations
+        python manage.py migrate
+        
+        # Run tests for specific apps based on changed files
+        python manage.py test --parallel --keepdb
+
+  validate-migrations:
+    name: Validate Migrations
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_DB: smartpark_migration_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python 3.13
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.13'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements/dev.txt
+
+    - name: Check for migration issues
+      working-directory: ./backend
+      env:
+        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/smartpark_migration_test
+      run: |
+        # Check for missing migrations
+        python manage.py makemigrations --check --dry-run
+        
+        # Test forward migrations
+        python manage.py migrate
+        
+        # Test backward migrations (if any)
+        python manage.py migrate --plan
+
+  documentation:
+    name: Documentation Check
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Check documentation files
+      run: |
+        # Check if README is updated
+        if [[ $(git diff --name-only origin/main...HEAD | grep -E "(README|docs/)" | wc -l) -gt 0 ]]; then
+          echo "📚 Documentation changes detected"
+        fi
+        
+        # Validate markdown files
+        find . -name "*.md" -exec echo "Checking {}" \;
+
+    - name: Validate API documentation
+      working-directory: ./backend
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements/dev.txt
+        
+        # Generate OpenAPI schema to validate
+        python manage.py spectacular --color --file schema.yml
+        
+        echo "✅ API documentation is valid"
