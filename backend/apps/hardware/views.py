@@ -155,9 +155,11 @@ class CameraHeartbeatListView(
     search_fields = ["payload_json"]
 
     def get_queryset(self):
+        from .models import CameraHeartbeats
+
         camera_id = self.kwargs["camera_id"]
-        return (
-            super().get_queryset().filter(camera_id=camera_id).order_by("-received_at")
+        return CameraHeartbeats.objects.filter(camera_id=camera_id).order_by(
+            "-received_at"
         )
 
 
@@ -200,11 +202,11 @@ def slot_status_event_view(request):
 
     try:
         slot_id = request.data.get("slot_id")
-        status = request.data.get("status")
+        slot_status_value = request.data.get("status")
         vehicle_type_id = request.data.get("vehicle_type_id")
         confidence = request.data.get("confidence")
 
-        if not slot_id or not status:
+        if not slot_id or not slot_status_value:
             return Response(
                 {"error": "slot_id e status são obrigatórios"},
                 status=status.HTTP_400_BAD_REQUEST,
@@ -217,7 +219,7 @@ def slot_status_event_view(request):
         slot_status, created = SlotStatus.objects.get_or_create(
             slot=slot,
             defaults={
-                "status": status,
+                "status": slot_status_value,
                 "vehicle_type_id": vehicle_type_id,
                 "confidence": confidence,
             },
@@ -225,7 +227,7 @@ def slot_status_event_view(request):
 
         if not created:
             # Atualizar status existente
-            slot_status.status = status
+            slot_status.status = slot_status_value
             slot_status.vehicle_type_id = vehicle_type_id
             slot_status.confidence = confidence
             slot_status.changed_at = timezone.now()
@@ -234,7 +236,7 @@ def slot_status_event_view(request):
         # Criar entrada no histórico
         SlotStatusHistory.objects.create(
             slot=slot,
-            status=status,
+            status=slot_status_value,
             vehicle_type_id=vehicle_type_id,
             confidence=confidence,
         )
@@ -243,7 +245,7 @@ def slot_status_event_view(request):
             {
                 "message": "Status atualizado com sucesso",
                 "slot_id": slot_id,
-                "status": status,
+                "status": slot_status_value,
             }
         )
 

@@ -146,7 +146,7 @@ class CamerasAdmin(admin.ModelAdmin):
             super()
             .get_queryset(request)
             .select_related("client", "establishment", "lot")
-            .annotate(heartbeats_count=Count("cameraheartbeats"))
+            .annotate(heartbeats_count=Count("heartbeats"))
         )
 
     def location_info(self, obj):
@@ -196,7 +196,7 @@ class CamerasAdmin(admin.ModelAdmin):
         count = (
             obj.heartbeats_count
             if hasattr(obj, "heartbeats_count")
-            else obj.cameraheartbeats.count()
+            else obj.heartbeats.count()
         )
         if count > 0:
             url = (
