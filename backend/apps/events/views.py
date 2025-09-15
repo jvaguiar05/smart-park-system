@@ -9,12 +9,12 @@ from apps.core.views import TenantViewSetMixin, SearchMixin, PaginationMixin
     get=extend_schema(
         summary="List slot status events",
         description="Retrieve paginated list of slot status change events",
-        tags=["Events"],
+        tags=["Events - System Events"],
     ),
     post=extend_schema(
         summary="Create slot status event",
         description="Record a new slot status change event",
-        tags=["Events"],
+        tags=["Events - System Events"],
     ),
 )
 class SlotStatusEventListCreateView(
@@ -33,7 +33,7 @@ class SlotStatusEventListCreateView(
 @extend_schema(
     summary="Get slot status event details",
     description="Retrieve details of a specific slot status event",
-    tags=["Events"],
+    tags=["Events - System Events"],
 )
 class SlotStatusEventDetailView(TenantViewSetMixin, generics.RetrieveAPIView):
     serializer_class = SlotStatusEventSerializer

@@ -28,12 +28,12 @@ from apps.core.views import (
     get=extend_schema(
         summary="List API keys",
         description="Retrieve paginated list of API keys for client",
-        tags=["API Keys"],
+        tags=["Hardware - API Keys"],
     ),
     post=extend_schema(
         summary="Create API key",
         description="Create a new API key for client",
-        tags=["API Keys"],
+        tags=["Hardware - API Keys"],
     ),
 )
 class ApiKeyListCreateView(
@@ -53,20 +53,22 @@ class ApiKeyListCreateView(
     get=extend_schema(
         summary="Get API key details",
         description="Retrieve details of a specific API key",
-        tags=["API Keys"],
+        tags=["Hardware - API Keys"],
     ),
     put=extend_schema(
         summary="Update API key",
         description="Update API key information",
-        tags=["API Keys"],
+        tags=["Hardware - API Keys"],
     ),
     patch=extend_schema(
         summary="Partially update API key",
         description="Partially update API key information",
-        tags=["API Keys"],
+        tags=["Hardware - API Keys"],
     ),
     delete=extend_schema(
-        summary="Delete API key", description="Delete an API key", tags=["API Keys"]
+        summary="Delete API key",
+        description="Delete an API key",
+        tags=["Hardware - API Keys"],
     ),
 )
 class ApiKeyDetailView(TenantViewSetMixin, generics.RetrieveUpdateDestroyAPIView):
@@ -78,12 +80,12 @@ class ApiKeyDetailView(TenantViewSetMixin, generics.RetrieveUpdateDestroyAPIView
     get=extend_schema(
         summary="List cameras",
         description="Retrieve paginated list of cameras for client",
-        tags=["Cameras"],
+        tags=["Hardware - Cameras"],
     ),
     post=extend_schema(
         summary="Create camera",
         description="Create a new camera for client",
-        tags=["Cameras"],
+        tags=["Hardware - Cameras"],
     ),
 )
 class CameraListCreateView(
@@ -103,20 +105,22 @@ class CameraListCreateView(
     get=extend_schema(
         summary="Get camera details",
         description="Retrieve details of a specific camera",
-        tags=["Cameras"],
+        tags=["Hardware - Cameras"],
     ),
     put=extend_schema(
         summary="Update camera",
         description="Update camera information",
-        tags=["Cameras"],
+        tags=["Hardware - Cameras"],
     ),
     patch=extend_schema(
         summary="Partially update camera",
         description="Partially update camera information",
-        tags=["Cameras"],
+        tags=["Hardware - Cameras"],
     ),
     delete=extend_schema(
-        summary="Delete camera", description="Delete a camera", tags=["Cameras"]
+        summary="Delete camera",
+        description="Delete a camera",
+        tags=["Hardware - Cameras"],
     ),
 )
 class CameraDetailView(TenantViewSetMixin, generics.RetrieveUpdateDestroyAPIView):
@@ -127,7 +131,7 @@ class CameraDetailView(TenantViewSetMixin, generics.RetrieveUpdateDestroyAPIView
 @extend_schema(
     summary="Create camera heartbeat",
     description="Record a heartbeat from camera hardware",
-    tags=["Camera Monitoring"],
+    tags=["Hardware - Camera Monitoring"],
 )
 class CameraHeartbeatCreateView(generics.CreateAPIView):
     serializer_class = CameraHeartbeatCreateSerializer
@@ -146,7 +150,7 @@ class CameraHeartbeatCreateView(generics.CreateAPIView):
 @extend_schema(
     summary="List camera heartbeats",
     description="Retrieve paginated list of heartbeats for a specific camera",
-    tags=["Camera Monitoring"],
+    tags=["Hardware - Camera Monitoring"],
 )
 class CameraHeartbeatListView(
     FilterByClientMixin, SearchMixin, PaginationMixin, generics.ListAPIView
@@ -169,7 +173,7 @@ class CameraHeartbeatListView(
 @extend_schema(
     summary="Receive slot status event from hardware",
     description="Endpoint for hardware to report slot status changes",
-    tags=["Hardware Integration"],
+    tags=["Hardware - Integration"],
     request=SlotStatusEventSerializer,
     responses={
         200: {"description": "Event processed successfully"},

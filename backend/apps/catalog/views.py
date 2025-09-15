@@ -60,7 +60,7 @@ def apply_search_filter(view_instance, queryset):
 @extend_schema(
     summary="List store types",
     description="Retrieve list of available store types",
-    tags=["Catalog - Store Types"],
+    tags=["Catalog - Types"],
 )
 class StoreTypeListView(
     BaseViewSetMixin, SearchMixin, PaginationMixin, generics.ListAPIView
@@ -96,12 +96,12 @@ class StoreTypeListView(
     get=extend_schema(
         summary="List establishments",
         description="Retrieve paginated list of establishments for client",
-        tags=["Establishments"],
+        tags=["Tenants - Establishments"],
     ),
     post=extend_schema(
         summary="Create establishment",
         description="Create a new establishment for client",
-        tags=["Establishments"],
+        tags=["Tenants - Establishments"],
     ),
 )
 class EstablishmentListCreateView(
@@ -121,22 +121,22 @@ class EstablishmentListCreateView(
     get=extend_schema(
         summary="Get establishment details",
         description="Retrieve details of a specific establishment",
-        tags=["Establishments"],
+        tags=["Tenants - Establishments"],
     ),
     put=extend_schema(
         summary="Update establishment",
         description="Update establishment information",
-        tags=["Establishments"],
+        tags=["Tenants - Establishments"],
     ),
     patch=extend_schema(
         summary="Partially update establishment",
         description="Partially update establishment information",
-        tags=["Establishments"],
+        tags=["Tenants - Establishments"],
     ),
     delete=extend_schema(
         summary="Delete establishment",
         description="Delete an establishment",
-        tags=["Establishments"],
+        tags=["Tenants - Establishments"],
     ),
 )
 class EstablishmentDetailView(
@@ -150,12 +150,12 @@ class EstablishmentDetailView(
     get=extend_schema(
         summary="List lots",
         description="Retrieve paginated list of lots for establishment",
-        tags=["Lots"],
+        tags=["Tenants - Lots"],
     ),
     post=extend_schema(
         summary="Create lot",
         description="Create a new lot for establishment",
-        tags=["Lots"],
+        tags=["Tenants - Lots"],
     ),
 )
 class LotListCreateView(
@@ -175,18 +175,20 @@ class LotListCreateView(
     get=extend_schema(
         summary="Get lot details",
         description="Retrieve details of a specific lot",
-        tags=["Lots"],
+        tags=["Tenants - Lots"],
     ),
     put=extend_schema(
-        summary="Update lot", description="Update lot information", tags=["Lots"]
+        summary="Update lot",
+        description="Update lot information",
+        tags=["Tenants - Lots"],
     ),
     patch=extend_schema(
         summary="Partially update lot",
         description="Partially update lot information",
-        tags=["Lots"],
+        tags=["Tenants - Lots"],
     ),
     delete=extend_schema(
-        summary="Delete lot", description="Delete a lot", tags=["Lots"]
+        summary="Delete lot", description="Delete a lot", tags=["Tenants - Lots"]
     ),
 )
 class LotDetailView(TenantViewSetMixin, generics.RetrieveUpdateDestroyAPIView):
@@ -198,12 +200,12 @@ class LotDetailView(TenantViewSetMixin, generics.RetrieveUpdateDestroyAPIView):
     get=extend_schema(
         summary="List slots in lot",
         description="Retrieve paginated list of slots for a specific lot",
-        tags=["Slots"],
+        tags=["Tenants - Slots"],
     ),
     post=extend_schema(
         summary="Create slot",
         description="Create a new slot in the lot",
-        tags=["Slots"],
+        tags=["Tenants - Slots"],
     ),
 )
 class SlotListCreateView(
@@ -232,18 +234,20 @@ class SlotListCreateView(
     get=extend_schema(
         summary="Get slot details",
         description="Retrieve details of a specific slot",
-        tags=["Slots"],
+        tags=["Tenants - Slots"],
     ),
     put=extend_schema(
-        summary="Update slot", description="Update slot information", tags=["Slots"]
+        summary="Update slot",
+        description="Update slot information",
+        tags=["Tenants - Slots"],
     ),
     patch=extend_schema(
         summary="Partially update slot",
         description="Partially update slot information",
-        tags=["Slots"],
+        tags=["Tenants - Slots"],
     ),
     delete=extend_schema(
-        summary="Delete slot", description="Delete a slot", tags=["Slots"]
+        summary="Delete slot", description="Delete a slot", tags=["Tenants - Slots"]
     ),
 )
 class SlotDetailView(TenantViewSetMixin, generics.RetrieveUpdateDestroyAPIView):
@@ -254,7 +258,7 @@ class SlotDetailView(TenantViewSetMixin, generics.RetrieveUpdateDestroyAPIView):
 @extend_schema(
     summary="List slot types",
     description="Retrieve list of available slot types",
-    tags=["Catalog - Slot Types"],
+    tags=["Catalog - Types"],
 )
 class SlotTypeListView(
     BaseViewSetMixin, SearchMixin, PaginationMixin, generics.ListAPIView
@@ -273,7 +277,7 @@ class SlotTypeListView(
 @extend_schema(
     summary="List vehicle types",
     description="Retrieve list of available vehicle types",
-    tags=["Catalog - Vehicle Types"],
+    tags=["Catalog - Types"],
 )
 class VehicleTypeListView(
     BaseViewSetMixin, SearchMixin, PaginationMixin, generics.ListAPIView
@@ -293,17 +297,17 @@ class VehicleTypeListView(
     get=extend_schema(
         summary="Get slot status",
         description="Retrieve current status of a specific slot",
-        tags=["Slot Status"],
+        tags=["Tenants - Slot Status"],
     ),
     put=extend_schema(
         summary="Update slot status",
         description="Update the current status of a slot",
-        tags=["Slot Status"],
+        tags=["Tenants - Slot Status"],
     ),
     patch=extend_schema(
         summary="Partially update slot status",
         description="Partially update slot status information",
-        tags=["Slot Status"],
+        tags=["Tenants - Slot Status"],
     ),
 )
 class SlotStatusDetailView(generics.RetrieveUpdateAPIView):
@@ -358,7 +362,7 @@ class SlotStatusDetailView(generics.RetrieveUpdateAPIView):
 @extend_schema(
     summary="List slot status history",
     description="Retrieve paginated history of status changes for a specific slot",
-    tags=["Slot Status History"],
+    tags=["Tenants - Slot Status History"],
 )
 class SlotStatusHistoryListView(SearchMixin, PaginationMixin, generics.ListAPIView):
     queryset = SlotStatusHistory.objects.all()
@@ -386,7 +390,7 @@ class SlotStatusHistoryListView(SearchMixin, PaginationMixin, generics.ListAPIVi
 
 
 @extend_schema(
-    tags=["Public API"],
+    tags=["Catalog - Public"],
     summary="List public establishments",
     description="Public endpoint to list active establishments",
     responses={
@@ -437,7 +441,7 @@ def public_establishments_view(request):
 
 
 @extend_schema(
-    tags=["Public API"],
+    tags=["Catalog - Public"],
     summary="Status of slots for an establishment",
     description="Public endpoint to check slot statuses for a specific establishment",
     responses={

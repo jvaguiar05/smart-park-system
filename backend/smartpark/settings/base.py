@@ -101,56 +101,88 @@ REST_FRAMEWORK = {
 # Swagger/Schema
 SPECTACULAR_SETTINGS = {
     "TITLE": "SmartPark API",
-    "DESCRIPTION": "API para sistema de gerenciamento inteligente de estacionamentos",
-    "VERSION": "v1",
+    "DESCRIPTION": "Sistema de gerenciamento de estacionamentos inteligentes",
+    "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
+    "SCHEMA_PATH_PREFIX": r"/api/v[0-9]",
+    "SERVE_PERMISSIONS": ["rest_framework.permissions.AllowAny"],
+    "SERVERS": [
+        {"url": "http://localhost:8000", "description": "Development server"},
+    ],
     "TAGS": [
+        # ============ ACCOUNTS APP ============
         {
-            "name": "Authentication",
-            "description": "Endpoints de autenticação e autorização",
-        },
-        {"name": "Clients", "description": "Gerenciamento de clientes do sistema"},
-        {
-            "name": "Client Members",
-            "description": "Gerenciamento de membros de clientes",
-        },
-        {"name": "Establishments", "description": "Gerenciamento de estabelecimentos"},
-        {"name": "Lots", "description": "Gerenciamento de estacionamentos/lotes"},
-        {"name": "Slots", "description": "Gerenciamento de vagas de estacionamento"},
-        {"name": "Slot Status", "description": "Status atual das vagas"},
-        {
-            "name": "Slot Status History",
-            "description": "Histórico de mudanças de status das vagas",
-        },
-        {"name": "Events", "description": "Sistema de eventos de status das vagas"},
-        {"name": "Cameras", "description": "Gerenciamento de câmeras de monitoramento"},
-        {
-            "name": "Camera Monitoring",
-            "description": "Monitoramento e heartbeats das câmeras",
+            "name": "Accounts - Authentication",
+            "description": "🔐 Endpoints para autenticação de usuários (login, logout, refresh token)",
         },
         {
-            "name": "API Keys",
-            "description": "Gerenciamento de chaves de API para hardware",
+            "name": "Accounts - Users",
+            "description": "👤 Endpoints para gerenciamento de usuários (perfil, busca, validação)",
+        },
+        # ============ CATALOG APP ============
+        {
+            "name": "Catalog - Public",
+            "description": "🌐 Endpoints públicos do catálogo (estabelecimentos, vagas)",
         },
         {
-            "name": "Hardware Integration",
-            "description": "Endpoints para integração com hardware",
+            "name": "Catalog - Types",
+            "description": "📓 Tipos de entidades (estabelecimentos, veículos, vagas)",
+        },
+        # ============ TENANTS APP ============
+        {
+            "name": "Tenants - Clients",
+            "description": "🏢 Gerenciamento de clientes do sistema",
         },
         {
-            "name": "Catalog - Store Types",
-            "description": "Tipos de estabelecimento disponíveis",
+            "name": "Tenants - Client Members",
+            "description": "👥 Gerenciamento de membros de clientes",
         },
         {
-            "name": "Catalog - Vehicle Types",
-            "description": "Tipos de veículos disponíveis",
+            "name": "Tenants - Establishments",
+            "description": "🏬 Gerenciamento de estabelecimentos",
         },
-        {"name": "Catalog - Slot Types", "description": "Tipos de vagas disponíveis"},
         {
-            "name": "Public API",
-            "description": "Endpoints públicos para consulta de informações",
+            "name": "Tenants - Lots",
+            "description": "🏞️ Gerenciamento de estacionamentos/lotes",
+        },
+        {
+            "name": "Tenants - Slots",
+            "description": "🚙 Gerenciamento de vagas de estacionamento",
+        },
+        {"name": "Tenants - Slot Status", "description": "📊 Status atual das vagas"},
+        {
+            "name": "Tenants - Slot Status History",
+            "description": "📈 Histórico de mudanças de status das vagas",
+        },
+        # ============ HARDWARE APP ============
+        {
+            "name": "Hardware - Cameras",
+            "description": "📹 Gerenciamento de câmeras de monitoramento",
+        },
+        {
+            "name": "Hardware - Camera Monitoring",
+            "description": "📡 Monitoramento e heartbeats das câmeras",
+        },
+        {
+            "name": "Hardware - API Keys",
+            "description": "🔑 Gerenciamento de chaves de API para hardware",
+        },
+        {
+            "name": "Hardware - Integration",
+            "description": "🔗 Endpoints para integração com hardware",
+        },
+        # ============ EVENTS APP ============
+        {
+            "name": "Events - System Events",
+            "description": "⚡ Sistema de eventos de status das vagas",
+        },
+        {
+            "name": "Events - Analytics",
+            "description": "📊 Eventos e análises do sistema",
         },
     ],
     "COMPONENT_SPLIT_REQUEST": True,
+    "COMPONENT_NO_READ_ONLY_REQUIRED": True,
     "SORT_OPERATIONS": False,
 }
 

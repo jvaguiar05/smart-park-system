@@ -8,7 +8,7 @@ from django.db.models import Q
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from drf_spectacular.utils import extend_schema, OpenApiResponse
+from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiResponse
 
 from .serializers import (
     LoginSerializer,
@@ -34,7 +34,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
     @extend_schema(
         summary="User Login",
         description="Authenticate user and obtain JWT access/refresh tokens",
-        tags=["Authentication"],
+        tags=["Accounts - Authentication"],
         request=LoginSerializer,
     )
     def post(self, request, *args, **kwargs):
@@ -50,7 +50,7 @@ class CustomTokenRefreshView(TokenRefreshView):
     @extend_schema(
         summary="Refresh JWT Token",
         description="Refresh access token using refresh token",
-        tags=["Authentication"],
+        tags=["Accounts - Authentication"],
     )
     def post(self, request, *args, **kwargs):
         return super().post(request, *args, **kwargs)
@@ -71,7 +71,7 @@ class LogoutView(APIView):
             200: OpenApiResponse(description="Logged out successfully"),
             400: OpenApiResponse(description="Invalid or missing refresh token"),
         },
-        tags=["Authentication"],
+        tags=["Accounts - Authentication"],
     )
     def post(self, request):
         serializer = LogoutSerializer(data=request.data)
@@ -114,7 +114,7 @@ class CreateAppUserView(generics.CreateAPIView):
             ),
             400: OpenApiResponse(description="Validation error"),
         },
-        tags=["User Management"],
+        tags=["Accounts - Users"],
     )
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -151,7 +151,7 @@ class UserProfileView(generics.RetrieveAPIView):
         summary="Get User Profile",
         description="Get the authenticated user's profile information",
         responses={200: UserProfileSerializer},
-        tags=["User Management"],
+        tags=["Accounts - Users"],
     )
     def get(self, request, *args, **kwargs):
         serializer = self.get_serializer(request.user)
@@ -161,15 +161,8 @@ class UserProfileView(generics.RetrieveAPIView):
         return self.request.user
 
 
-class UpdateUserProfileView(generics.UpdateAPIView):
-    """
-    View para atualizar perfil do usuário autenticado
-    """
-
-    serializer_class = UpdateUserSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-    @extend_schema(
+@extend_schema_view(
+    put=extend_schema(
         summary="Update User Profile",
         description="Update the authenticated user's profile information",
         responses={
@@ -178,8 +171,28 @@ class UpdateUserProfileView(generics.UpdateAPIView):
             ),
             400: OpenApiResponse(description="Validation error"),
         },
-        tags=["User Management"],
-    )
+        tags=["Accounts - Users"],
+    ),
+    patch=extend_schema(
+        summary="Update User Profile",
+        description="Update the authenticated user's profile information",
+        responses={
+            200: OpenApiResponse(
+                description="Profile updated", response=UserProfileSerializer
+            ),
+            400: OpenApiResponse(description="Validation error"),
+        },
+        tags=["Accounts - Users"],
+    ),
+)
+class UpdateUserProfileView(generics.UpdateAPIView):
+    """
+    View para atualizar perfil do usuário autenticado
+    """
+
+    serializer_class = UpdateUserSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
     def patch(self, request, *args, **kwargs):
         response = super().patch(request, *args, **kwargs)
         if response.status_code == 200:
@@ -207,7 +220,7 @@ class ChangePasswordView(APIView):
             200: OpenApiResponse(description="Password changed successfully"),
             400: OpenApiResponse(description="Validation error"),
         },
-        tags=["User Management"],
+        tags=["Accounts - Users"],
     )
     def post(self, request):
         serializer = ChangePasswordSerializer(
@@ -238,7 +251,7 @@ class DeactivateUserView(APIView):
         responses={
             200: OpenApiResponse(description="Account deactivated successfully"),
         },
-        tags=["User Management"],
+        tags=["Accounts - Users"],
     )
     def post(self, request):
         user = request.user
@@ -253,16 +266,8 @@ class DeactivateUserView(APIView):
 # ==================== USER SEARCH VIEWS ====================
 
 
-class UserSearchView(generics.ListAPIView):
-    """
-    View para busca de usuários (dados públicos)
-    App users podem buscar outros usuários por nome/email
-    """
-
-    serializer_class = UserSearchSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-    @extend_schema(
+@extend_schema_view(
+    get=extend_schema(
         summary="Search Users",
         description="Search for users by name or email (public data only)",
         parameters=[
@@ -275,8 +280,18 @@ class UserSearchView(generics.ListAPIView):
             }
         ],
         responses={200: UserSearchSerializer(many=True)},
-        tags=["User Management"],
+        tags=["Accounts - Users"],
     )
+)
+class UserSearchView(generics.ListAPIView):
+    """
+    View para busca de usuários (dados públicos)
+    App users podem buscar outros usuários por nome/email
+    """
+
+    serializer_class = UserSearchSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
     def get_queryset(self):
         queryset = User.objects.filter(is_active=True)
         search_query = self.request.query_params.get("q", None)
@@ -310,7 +325,7 @@ class UserSearchView(generics.ListAPIView):
     responses={
         200: OpenApiResponse(description="Username availability status"),
     },
-    tags=["User Management"],
+    tags=["Accounts - Users"],
 )
 @api_view(["GET"])
 @permission_classes([permissions.AllowAny])
@@ -345,7 +360,7 @@ def check_username_availability(request):
     responses={
         200: OpenApiResponse(description="Email availability status"),
     },
-    tags=["User Management"],
+    tags=["Accounts - Users"],
 )
 @api_view(["GET"])
 @permission_classes([permissions.AllowAny])

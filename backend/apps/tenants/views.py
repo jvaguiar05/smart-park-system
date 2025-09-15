@@ -23,12 +23,12 @@ from apps.core.views import (
     get=extend_schema(
         summary="List all clients",
         description="Retrieve a paginated list of all clients in the system",
-        tags=["Clients"],
+        tags=["Tenants - Clients"],
     ),
     post=extend_schema(
         summary="Create new client",
         description="Create a new client in the system",
-        tags=["Clients"],
+        tags=["Tenants - Clients"],
     ),
 )
 class ClientListCreateView(
@@ -48,20 +48,22 @@ class ClientListCreateView(
     get=extend_schema(
         summary="Get client details",
         description="Retrieve details of a specific client",
-        tags=["Clients"],
+        tags=["Tenants - Clients"],
     ),
     put=extend_schema(
         summary="Update client",
         description="Update client information",
-        tags=["Clients"],
+        tags=["Tenants - Clients"],
     ),
     patch=extend_schema(
         summary="Partially update client",
         description="Partially update client information",
-        tags=["Clients"],
+        tags=["Tenants - Clients"],
     ),
     delete=extend_schema(
-        summary="Delete client", description="Soft delete a client", tags=["Clients"]
+        summary="Delete client",
+        description="Soft delete a client",
+        tags=["Tenants - Clients"],
     ),
 )
 class ClientDetailView(SoftDeleteViewSetMixin, generics.RetrieveUpdateDestroyAPIView):
@@ -74,12 +76,12 @@ class ClientDetailView(SoftDeleteViewSetMixin, generics.RetrieveUpdateDestroyAPI
     get=extend_schema(
         summary="List client members",
         description="List all members of a specific client",
-        tags=["Client Members"],
+        tags=["Tenants - Client Members"],
     ),
     post=extend_schema(
         summary="Add client member",
         description="Add a new member to a client",
-        tags=["Client Members"],
+        tags=["Tenants - Client Members"],
     ),
 )
 class ClientMemberListView(
@@ -119,12 +121,12 @@ class ClientMemberListView(
     get=extend_schema(
         summary="Get client member details",
         description="Retrieve details of a specific client member",
-        tags=["Client Members"],
+        tags=["Tenants - Client Members"],
     ),
     delete=extend_schema(
         summary="Remove client member",
         description="Remove a member from a client",
-        tags=["Client Members"],
+        tags=["Tenants - Client Members"],
     ),
 )
 class ClientMemberDetailView(BaseViewSetMixin, generics.RetrieveDestroyAPIView):
@@ -141,7 +143,7 @@ class ClientMemberDetailView(BaseViewSetMixin, generics.RetrieveDestroyAPIView):
 @extend_schema(
     summary="Get my clients",
     description="Retrieve list of clients for the authenticated user",
-    tags=["Authentication"],
+    tags=["Tenants - Client Members"],
     responses={200: ClientMemberSerializer(many=True)},
 )
 @api_view(["GET"])
