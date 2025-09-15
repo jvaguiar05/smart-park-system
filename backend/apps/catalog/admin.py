@@ -186,7 +186,8 @@ class LotsAdmin(admin.ModelAdmin):
             .annotate(
                 slots_count=Count("slots"),
                 occupied_slots_count=Count(
-                    "slots__current_status", filter=Q(slots__current_status__status="OCCUPIED")
+                    "slots__current_status",
+                    filter=Q(slots__current_status__status="OCCUPIED"),
                 ),
             )
         )
@@ -264,7 +265,8 @@ class SlotsAdmin(admin.ModelAdmin):
         return (
             super()
             .get_queryset(request)
-            .select_related("lot__establishment__client", "slot_type", "current_status")
+            .select_related("lot__establishment__client", "slot_type")
+            .prefetch_related("current_status")
         )
 
     def lot_info(self, obj):
@@ -364,7 +366,7 @@ class VehicleTypesAdmin(admin.ModelAdmin):
             .get_queryset(request)
             .annotate(
                 active_slots_count=Count(
-                    "current_status", filter=Q(current_status__status="OCCUPIED")
+                    "slot_statuses", filter=Q(slot_statuses__status="OCCUPIED")
                 )
             )
         )
