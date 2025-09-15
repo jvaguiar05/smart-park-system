@@ -1,8 +1,3 @@
-"""
-Utilitários para testes da app tenants.
-Factories e helpers para criar objetos de teste de forma consistente.
-"""
-
 from model_bakery import baker
 from django.contrib.auth.models import User, Group
 from apps.tenants.models import Clients, ClientMembers

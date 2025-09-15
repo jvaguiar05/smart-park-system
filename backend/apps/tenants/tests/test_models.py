@@ -1,7 +1,3 @@
-"""
-Testes para os models da app tenants.
-"""
-
 from django.test import TestCase
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
