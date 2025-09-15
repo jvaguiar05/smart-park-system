@@ -41,7 +41,7 @@ class SlotStatusEventsAdmin(admin.ModelAdmin):
             "Informações do Evento",
             {"fields": ("event_id", "event_type", "occurred_at", "received_at")},
         ),
-        ("Localização", {"fields": ("client", "slot", "lot", "establishment")}),
+        ("Localização", {"fields": ("client", "slot", "lot")}),
         (
             "Dados do Evento",
             {"fields": ("event_payload_formatted",), "classes": ("collapse",)},
@@ -57,12 +57,12 @@ class SlotStatusEventsAdmin(admin.ModelAdmin):
                 "client",
                 "slot__lot__establishment",
                 "lot__establishment",
-                "establishment",
+                "camera",
             )
         )
 
     def event_id_short(self, obj):
-        return f"{obj.event_id[:8]}..."
+        return f"{str(obj.event_id)[:8]}..."
 
     event_id_short.short_description = "Event ID"
 
@@ -107,11 +107,11 @@ class SlotStatusEventsAdmin(admin.ModelAdmin):
         )
 
         return format_html(
-            'Ocorreu: {}<br>Recebido: {}<br><span style="color: {};">Delay: {:.1f}s</span>',
+            'Ocorreu: {}<br>Recebido: {}<br><span style="color: {};">Delay: {}s</span>',
             occurred,
             received,
             color,
-            delay_seconds,
+            f"{delay_seconds:.1f}",
         )
 
     timing_info.short_description = "Timing"
@@ -157,14 +157,23 @@ class SlotStatusEventsAdmin(admin.ModelAdmin):
     processed_time_detail.short_description = "Detalhes de Timing"
 
     def event_payload_formatted(self, obj):
-        if obj.event_payload:
-            import json
+        # Since SlotStatusEvents doesn't have event_payload,
+        # we can show other relevant data
+        data = {
+            "event_type": obj.event_type,
+            "curr_status": obj.curr_status,
+            "prev_status": obj.prev_status,
+            "confidence": float(obj.confidence) if obj.confidence else None,
+            "source_model": obj.source_model,
+            "source_version": obj.source_version,
+        }
 
-            try:
-                formatted = json.dumps(obj.event_payload, indent=2, ensure_ascii=False)
-                return format_html("<pre>{}</pre>", formatted)
-            except:
-                return str(obj.event_payload)
-        return "Nenhum payload"
+        import json
+
+        try:
+            formatted = json.dumps(data, indent=2, ensure_ascii=False)
+            return format_html("<pre>{}</pre>", formatted)
+        except:
+            return str(data)
 
     event_payload_formatted.short_description = "Payload do Evento"
