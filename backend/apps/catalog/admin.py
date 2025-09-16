@@ -14,6 +14,9 @@ from .models import (
     SlotStatusHistory,
 )
 
+# Importar o admin_site customizado
+from smartpark.admin import admin_site
+
 
 class LotsInline(admin.TabularInline):
     model = Lots
@@ -54,7 +57,6 @@ class SlotsInline(admin.TabularInline):
     current_status_display.short_description = "Status Atual"
 
 
-@admin.register(StoreTypes)
 class StoreTypesAdmin(admin.ModelAdmin):
     list_display = ["name", "establishments_count"]
     search_fields = ["name"]
@@ -79,7 +81,6 @@ class StoreTypesAdmin(admin.ModelAdmin):
     establishments_count.short_description = "Estabelecimentos"
 
 
-@admin.register(Establishments)
 class EstablishmentsAdmin(admin.ModelAdmin):
     list_display = [
         "name",
@@ -163,7 +164,6 @@ class EstablishmentsAdmin(admin.ModelAdmin):
     occupied_slots.short_description = "Ocupação"
 
 
-@admin.register(Lots)
 class LotsAdmin(admin.ModelAdmin):
     list_display = [
         "lot_code",
@@ -225,7 +225,6 @@ class LotsAdmin(admin.ModelAdmin):
     occupied_slots.short_description = "Ocupação"
 
 
-@admin.register(Slots)
 class SlotsAdmin(admin.ModelAdmin):
     list_display = [
         "slot_code",
@@ -334,7 +333,6 @@ class SlotsAdmin(admin.ModelAdmin):
     deactivate_slots.short_description = "Desativar vagas selecionadas"
 
 
-@admin.register(SlotTypes)
 class SlotTypesAdmin(admin.ModelAdmin):
     list_display = ["name", "slots_count"]
     search_fields = ["name"]
@@ -355,7 +353,6 @@ class SlotTypesAdmin(admin.ModelAdmin):
     slots_count.short_description = "Vagas"
 
 
-@admin.register(VehicleTypes)
 class VehicleTypesAdmin(admin.ModelAdmin):
     list_display = ["name", "active_slots_count"]
     search_fields = ["name"]
@@ -378,7 +375,6 @@ class VehicleTypesAdmin(admin.ModelAdmin):
     active_slots_count.short_description = "Ocupação Atual"
 
 
-@admin.register(SlotStatus)
 class SlotStatusAdmin(admin.ModelAdmin):
     list_display = [
         "slot_info",
@@ -419,7 +415,6 @@ class SlotStatusAdmin(admin.ModelAdmin):
     confidence_display.short_description = "Confiança"
 
 
-@admin.register(SlotStatusHistory)
 class SlotStatusHistoryAdmin(admin.ModelAdmin):
     list_display = [
         "slot_info",
@@ -459,3 +454,14 @@ class SlotStatusHistoryAdmin(admin.ModelAdmin):
         return "-"
 
     confidence_display.short_description = "Confiança"
+
+
+# Registrar no admin_site customizado
+admin_site.register(StoreTypes, StoreTypesAdmin)
+admin_site.register(Establishments, EstablishmentsAdmin)
+admin_site.register(Lots, LotsAdmin)
+admin_site.register(Slots, SlotsAdmin)
+admin_site.register(SlotTypes, SlotTypesAdmin)
+admin_site.register(VehicleTypes, VehicleTypesAdmin)
+admin_site.register(SlotStatus, SlotStatusAdmin)
+admin_site.register(SlotStatusHistory, SlotStatusHistoryAdmin)

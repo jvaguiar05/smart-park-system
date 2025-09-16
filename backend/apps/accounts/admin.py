@@ -7,6 +7,9 @@ from django.db.models import Count
 from django.utils import timezone
 from datetime import timedelta
 
+# Importar o admin_site customizado
+from smartpark.admin import admin_site
+
 
 # Customizar o UserAdmin existente
 class CustomUserAdmin(BaseUserAdmin):
@@ -181,16 +184,9 @@ def add_to_app_user_group(modeladmin, request, queryset):
     )
 
 
-# Registrar os admins customizados
-admin.site.unregister(User)
-admin.site.unregister(Group)
-admin.site.register(User, CustomUserAdmin)
-admin.site.register(Group, GroupAdmin)
+# Registrar os admins customizados no admin_site customizado
+admin_site.register(User, CustomUserAdmin)
+admin_site.register(Group, GroupAdmin)
 
 # Adicionar actions customizadas
 CustomUserAdmin.actions = [activate_users, deactivate_users, add_to_app_user_group]
-
-# Customizar títulos do admin
-admin.site.site_header = "SmartPark - Administração"
-admin.site.site_title = "SmartPark Admin"
-admin.site.index_title = "Painel de Administração"

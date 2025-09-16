@@ -3,8 +3,10 @@ from django.utils.html import format_html
 from django.utils import timezone
 from .models import SlotStatusEvents
 
+# Importar o admin_site customizado
+from smartpark.admin import admin_site
 
-@admin.register(SlotStatusEvents)
+
 class SlotStatusEventsAdmin(admin.ModelAdmin):
     list_display = [
         "event_id_short",
@@ -177,3 +179,7 @@ class SlotStatusEventsAdmin(admin.ModelAdmin):
             return str(data)
 
     event_payload_formatted.short_description = "Payload do Evento"
+
+
+# Registrar no admin_site customizado
+admin_site.register(SlotStatusEvents, SlotStatusEventsAdmin)

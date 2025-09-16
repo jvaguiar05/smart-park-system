@@ -4,6 +4,9 @@ from django.urls import reverse
 from django.db.models import Count
 from .models import Clients, ClientMembers
 
+# Importar o admin_site customizado
+from smartpark.admin import admin_site
+
 
 class ClientMembersInline(admin.TabularInline):
     model = ClientMembers
@@ -12,7 +15,6 @@ class ClientMembersInline(admin.TabularInline):
     readonly_fields = ["joined_at"]
 
 
-@admin.register(Clients)
 class ClientsAdmin(admin.ModelAdmin):
     list_display = [
         "name",
@@ -86,7 +88,6 @@ class ClientsAdmin(admin.ModelAdmin):
     deactivate_clients.short_description = "Desativar clientes selecionados"
 
 
-@admin.register(ClientMembers)
 class ClientMembersAdmin(admin.ModelAdmin):
     list_display = ["client", "user_info", "role", "joined_at"]
     list_filter = ["role", "joined_at", "client"]
@@ -96,3 +97,8 @@ class ClientMembersAdmin(admin.ModelAdmin):
         return f"{obj.user.username} ({obj.user.email})"
 
     user_info.short_description = "Usuário"
+
+
+# Registrar no admin_site customizado
+admin_site.register(Clients, ClientsAdmin)
+admin_site.register(ClientMembers, ClientMembersAdmin)

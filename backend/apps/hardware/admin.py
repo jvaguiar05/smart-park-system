@@ -6,6 +6,9 @@ from django.utils import timezone
 from datetime import timedelta
 from .models import ApiKeys, Cameras, CameraHeartbeats
 
+# Importar o admin_site customizado
+from smartpark.admin import admin_site
+
 
 class CameraHeartbeatsInline(admin.TabularInline):
     model = CameraHeartbeats
@@ -29,7 +32,6 @@ class CameraHeartbeatsInline(admin.TabularInline):
         return super().get_queryset(request)[:5]  # Mostrar apenas os 5 mais recentes
 
 
-@admin.register(ApiKeys)
 class ApiKeysAdmin(admin.ModelAdmin):
     list_display = [
         "name",
@@ -107,7 +109,6 @@ class ApiKeysAdmin(admin.ModelAdmin):
     disable_keys.short_description = "Desativar chaves selecionadas"
 
 
-@admin.register(Cameras)
 class CamerasAdmin(admin.ModelAdmin):
     list_display = [
         "camera_code",
@@ -229,7 +230,6 @@ class CamerasAdmin(admin.ModelAdmin):
     set_maintenance.short_description = "Definir como manutenção"
 
 
-@admin.register(CameraHeartbeats)
 class CameraHeartbeatsAdmin(admin.ModelAdmin):
     list_display = ["camera_info", "received_at", "payload_preview", "time_since"]
     list_filter = ["received_at", "camera__client"]
@@ -265,3 +265,9 @@ class CameraHeartbeatsAdmin(admin.ModelAdmin):
             return f"{delta.days} dias atrás"
 
     time_since.short_description = "Há quanto tempo"
+
+
+# Registrar no admin_site customizado
+admin_site.register(ApiKeys, ApiKeysAdmin)
+admin_site.register(Cameras, CamerasAdmin)
+admin_site.register(CameraHeartbeats, CameraHeartbeatsAdmin)
