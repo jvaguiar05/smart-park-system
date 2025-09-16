@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "apps.catalog",
     "apps.hardware",
     "apps.events",
+    "apps.public",
 ]
 
 MIDDLEWARE = [
@@ -61,7 +62,7 @@ ASGI_APPLICATION = "smartpark.asgi.application"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR / "templates"],
+        "DIRS": [BASE_DIR.parent / "templates"],  # Aponta para backend/templates
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [

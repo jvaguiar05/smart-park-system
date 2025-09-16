@@ -1,14 +1,20 @@
 from django.contrib import admin
 from django.urls import path, include
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
+from .admin import admin_site
 
 
 urlpatterns = [
-    path("admin/", admin.site.urls),
+    # Admin Backoffice - Restrito para superusuários e staff
+    path("admin/", admin_site.urls),
+    # Futuras URLs dos outros backoffices
+    # path("client/", include("apps.client_backoffice.urls")),  # Phase 2
+    # Páginas públicas - Home e institucionais
+    path("", include("apps.public.urls")),
     # OpenAPI/Swagger
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="docs"),
-    # Apps do projeto
+    # APIs do projeto
     path("api/accounts/", include("apps.accounts.urls")),
     path("api/core/", include("apps.core.urls")),
     path("api/tenants/", include("apps.tenants.urls")),
