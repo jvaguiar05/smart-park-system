@@ -49,7 +49,7 @@ class ApiKeysAdmin(admin.ModelAdmin):
         (
             "Chave de API",
             {
-                "fields": ("key_id", "secret_key"),
+                "fields": ("key_id", "hmac_secret_hash"),
                 "description": "Mantenha essas informações seguras!",
             },
         ),
@@ -130,8 +130,8 @@ class CamerasAdmin(admin.ModelAdmin):
 
     fieldsets = (
         ("Informações Básicas", {"fields": ("camera_code", "client", "api_key")}),
-        ("Localização", {"fields": ("establishment", "lot", "position_description")}),
-        ("Status e Configuração", {"fields": ("state", "config_json")}),
+        ("Localização", {"fields": ("establishment", "lot")}),
+        ("Status e Configuração", {"fields": ("state",)}),
         (
             "Dados de Auditoria",
             {

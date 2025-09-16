@@ -33,8 +33,6 @@ class SlotStatusEventsAdmin(admin.ModelAdmin):
     readonly_fields = [
         "event_id",
         "received_at",
-        "processed_time_detail",
-        "event_payload_formatted",
     ]
     date_hierarchy = "occurred_at"
 
@@ -43,12 +41,18 @@ class SlotStatusEventsAdmin(admin.ModelAdmin):
             "Informações do Evento",
             {"fields": ("event_id", "event_type", "occurred_at", "received_at")},
         ),
-        ("Localização", {"fields": ("client", "slot", "lot")}),
+        ("Localização", {"fields": ("client", "slot", "lot", "camera")}),
         (
-            "Dados do Evento",
-            {"fields": ("event_payload_formatted",), "classes": ("collapse",)},
+            "Status",
+            {"fields": ("prev_status", "curr_status", "prev_vehicle", "curr_vehicle")},
         ),
-        ("Métricas", {"fields": ("processed_time_detail",), "classes": ("collapse",)}),
+        (
+            "Dados Técnicos",
+            {
+                "fields": ("confidence", "source_model", "source_version", "sequence"),
+                "classes": ("collapse",),
+            },
+        ),
     )
 
     def get_queryset(self, request):
@@ -97,6 +101,9 @@ class SlotStatusEventsAdmin(admin.ModelAdmin):
     slot_info.short_description = "Localização"
 
     def timing_info(self, obj):
+        if not obj.occurred_at or not obj.received_at:
+            return "N/A - Dados incompletos"
+
         occurred = obj.occurred_at.strftime("%d/%m %H:%M:%S")
         received = obj.received_at.strftime("%d/%m %H:%M:%S")
 
@@ -119,6 +126,9 @@ class SlotStatusEventsAdmin(admin.ModelAdmin):
     timing_info.short_description = "Timing"
 
     def processed_time(self, obj):
+        if not obj.occurred_at or not obj.received_at:
+            return "N/A"
+
         delay = obj.received_at - obj.occurred_at
         delay_seconds = delay.total_seconds()
 
@@ -140,6 +150,9 @@ class SlotStatusEventsAdmin(admin.ModelAdmin):
     processed_time.short_description = "Tempo de Processamento"
 
     def processed_time_detail(self, obj):
+        if not obj.received_at or not obj.occurred_at:
+            return "N/A - Dados incompletos"
+
         delay = obj.received_at - obj.occurred_at
         delay_seconds = delay.total_seconds()
 
