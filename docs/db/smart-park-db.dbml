@@ -4,7 +4,8 @@ Project SmartPark {
 }
 
 /**********************************************************
- * IDENTIDADE & ACESSO (MVP)
+
+* IDENTIDADE & ACESSO (MVP)
  **********************************************************/
 
 table people {
@@ -75,14 +76,15 @@ table refresh_tokens {
 }
 
 /**********************************************************
- * TENANT (EMPRESAS CLIENTES) & MEMBROS ADMIN (MVP)
+
+* TENANT (EMPRESAS CLIENTES) & MEMBROS ADMIN (MVP)
  **********************************************************/
 
 table clients {
   id                 bigserial    [pk]
   public_id          uuid         [not null, default: `gen_random_uuid()`]
   name               varchar(120) [not null]
-  onboarding_status  varchar(32)  [not null, default: 'PENDING'] 
+  onboarding_status  varchar(32)  [not null, default: 'PENDING']
   created_at         timestamptz  [not null, default: `now()`]
   updated_at         timestamptz  [not null, default: `now()`]
   deleted_at         timestamptz
@@ -106,7 +108,8 @@ table client_members {
 }
 
 /**********************************************************
- * CATÁLOGO DE LOCAIS (MVP)
+
+* CATÁLOGO DE LOCAIS (MVP)
  **********************************************************/
 
 table store_types {
@@ -159,7 +162,8 @@ table lots {
 }
 
 /**********************************************************
- * MAPA & VAGAS (MVP)
+
+* MAPA & VAGAS (MVP)
  **********************************************************/
 
 table slot_types {
@@ -197,7 +201,8 @@ table slots {
 }
 
 /**********************************************************
- * STATUS / HISTÓRICO / EVENTOS (EDGE) — MVP
+
+* STATUS / HISTÓRICO / EVENTOS (EDGE) — MVP
  **********************************************************/
 
 table slot_status {
@@ -266,8 +271,8 @@ table camera_heartbeats {
   Note: "Telemetria básica de disponibilidade."
 }
 
-/* Opcional no MVP; manter se quiser origem canônica de mudanças
-   — pode ser adicionado na 1ª iteração de relatórios/streaming */
+/*Opcional no MVP; manter se quiser origem canônica de mudanças
+   — pode ser adicionado na 1ª iteração de relatórios/streaming*/
 table slot_status_events {
   id             bigserial    [pk]
   event_id       uuid         [not null, unique]

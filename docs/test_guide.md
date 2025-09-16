@@ -7,6 +7,7 @@ Este guia fornece instruções completas para executar testes e análises de cob
 O projeto utiliza o padrão de URLs: `host/api/app-name/entity`
 
 Exemplos:
+
 - `host/api/tenants/clients/`
 - `host/api/hardware/cameras/`
 - `host/api/catalog/establishments/`
@@ -230,7 +231,7 @@ coverage xml
 
 ### Exemplo de Saída
 
-```
+```txt
 Name                      Stmts   Miss  Cover   Missing
 -------------------------------------------------------
 apps/tenants/models.py       24      0   100%
@@ -252,24 +253,28 @@ TOTAL                       134      2    99%
 ### Problemas Comuns
 
 1. **Testes não encontrados**
+
    ```bash
    # Verificar estrutura de arquivos
    python manage.py test --debug-mode
    ```
 
 2. **Erro de importação**
+
    ```bash
    # Verificar PYTHONPATH
    export PYTHONPATH="${PYTHONPATH}:."
    ```
 
 3. **Banco de dados de teste**
+
    ```bash
    # Forçar recriação do banco de teste
    python manage.py test --keepdb=False
    ```
 
 4. **Coverage não funciona**
+
    ```bash
    # Reinstalar coverage
    pip uninstall coverage

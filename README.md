@@ -13,31 +13,31 @@ O SmartPark é um sistema inteligente de gerenciamento de estacionamentos projet
 
 ### Principais Funcionalidades
 
--   **Monitoramento em Tempo Real**: Câmeras com visão computacional detectam presença e ausência de veículos
--   **Arquitetura Multi-tenant**: Suporte para múltiplos clientes (empresas) com dados isolados
--   **API Pública**: Endpoints abertos para aplicativos móveis e integrações de terceiros
--   **Painel Administrativo**: Interface Django Admin para gerenciamento do sistema
--   **Autenticação JWT**: Acesso seguro à API com rotação de tokens de refresh
--   **Atualizações por Eventos**: Mudanças de status de vagas em tempo real via integração com hardware
--   **Permissões Abrangentes**: Controle de acesso baseado em funções (Admin, Admin Cliente, Usuário App)
+- **Monitoramento em Tempo Real**: Câmeras com visão computacional detectam presença e ausência de veículos
+- **Arquitetura Multi-tenant**: Suporte para múltiplos clientes (empresas) com dados isolados
+- **API Pública**: Endpoints abertos para aplicativos móveis e integrações de terceiros
+- **Painel Administrativo**: Interface Django Admin para gerenciamento do sistema
+- **Autenticação JWT**: Acesso seguro à API com rotação de tokens de refresh
+- **Atualizações por Eventos**: Mudanças de status de vagas em tempo real via integração com hardware
+- **Permissões Abrangentes**: Controle de acesso baseado em funções (Admin, Admin Cliente, Usuário App)
 
 ### Problema Identificado
 
 Áreas urbanas enfrentam desafios significativos no gerenciamento de vagas de estacionamento:
 
--   Motoristas perdem tempo procurando vagas disponíveis
--   Aumento do congestionamento de trânsito e emissões
--   Empresas não têm visibilidade sobre a utilização de suas vagas
--   Falta de forma padronizada para compartilhar dados de disponibilidade de vagas
+- Motoristas perdem tempo procurando vagas disponíveis
+- Aumento do congestionamento de trânsito e emissões
+- Empresas não têm visibilidade sobre a utilização de suas vagas
+- Falta de forma padronizada para compartilhar dados de disponibilidade de vagas
 
 ### Solução
 
 O SmartPark aborda esses desafios através de:
 
--   Fornecimento de disponibilidade de vagas em tempo real
--   Redução do tempo gasto procurando estacionamento
--   Capacitação de empresas para otimizar suas operações de estacionamento
--   Suporte a decisões de planejamento urbano baseadas em dados
+- Fornecimento de disponibilidade de vagas em tempo real
+- Redução do tempo gasto procurando estacionamento
+- Capacitação de empresas para otimizar suas operações de estacionamento
+- Suporte a decisões de planejamento urbano baseadas em dados
 
 ## 🏗️ Arquitetura
 
@@ -75,52 +75,52 @@ O backend está organizado em aplicações Django específicas por domínio:
 
 #### `apps.core`
 
--   **Propósito**: Utilitários compartilhados e modelos base
--   **Componentes Principais**:
-    -   `BaseModel`: Campos comuns (id, public_id, timestamps, exclusão suave)
-    -   `TenantModel`: Modelo base multi-tenant com isolamento de cliente
-    -   Managers customizados para exclusão suave e filtragem por tenant
-    -   Classes de permissão e mixins de view
+- **Propósito**: Utilitários compartilhados e modelos base
+- **Componentes Principais**:
+  - `BaseModel`: Campos comuns (id, public_id, timestamps, exclusão suave)
+  - `TenantModel`: Modelo base multi-tenant com isolamento de cliente
+  - Managers customizados para exclusão suave e filtragem por tenant
+  - Classes de permissão e mixins de view
 
 #### `apps.tenants`
 
--   **Propósito**: Gerenciamento de clientes (empresas) e membros
--   **Models**: `Clients`, `ClientMembers`
--   **Funcionalidades**: Fluxo de onboarding de clientes, gerenciamento de funções de membros
--   **Endpoints API**: CRUD de clientes, gerenciamento de membros
+- **Propósito**: Gerenciamento de clientes (empresas) e membros
+- **Models**: `Clients`, `ClientMembers`
+- **Funcionalidades**: Fluxo de onboarding de clientes, gerenciamento de funções de membros
+- **Endpoints API**: CRUD de clientes, gerenciamento de membros
 
 #### `apps.catalog`
 
--   **Propósito**: Gerenciamento da infraestrutura central de estacionamento
--   **Models**:
-    -   `StoreTypes`: Categorias de tipos de negócio
-    -   `Establishments`: Localizações físicas de empresas
-    -   `Lots`: Áreas de estacionamento dentro de estabelecimentos
-    -   `Slots`: Vagas de estacionamento individuais
-    -   `SlotStatus`: Status atual das vagas
-    -   `SlotStatusHistory`: Trilha de auditoria de mudanças de status
--   **Funcionalidades**: Hierarquia multi-nível (Cliente → Estabelecimento → Lote → Vaga)
+- **Propósito**: Gerenciamento da infraestrutura central de estacionamento
+- **Models**:
+  - `StoreTypes`: Categorias de tipos de negócio
+  - `Establishments`: Localizações físicas de empresas
+  - `Lots`: Áreas de estacionamento dentro de estabelecimentos
+  - `Slots`: Vagas de estacionamento individuais
+  - `SlotStatus`: Status atual das vagas
+  - `SlotStatusHistory`: Trilha de auditoria de mudanças de status
+- **Funcionalidades**: Hierarquia multi-nível (Cliente → Estabelecimento → Lote → Vaga)
 
 #### `apps.hardware`
 
--   **Propósito**: Gerenciamento de dispositivos IoT e câmeras
--   **Models**: `ApiKeys`, `Cameras`, `CameraHeartbeats`
--   **Funcionalidades**: Gerenciamento de chaves API, monitoramento de câmeras, integração com hardware
+- **Propósito**: Gerenciamento de dispositivos IoT e câmeras
+- **Models**: `ApiKeys`, `Cameras`, `CameraHeartbeats`
+- **Funcionalidades**: Gerenciamento de chaves API, monitoramento de câmeras, integração com hardware
 
 #### `apps.events`
 
--   **Propósito**: Processamento de eventos e rastreamento de mudanças de status
--   **Models**: `SlotStatusEvents`
--   **Funcionalidades**: Ingestão de eventos em tempo real de dispositivos de hardware
+- **Propósito**: Processamento de eventos e rastreamento de mudanças de status
+- **Models**: `SlotStatusEvents`
+- **Funcionalidades**: Ingestão de eventos em tempo real de dispositivos de hardware
 
 ## 🚀 Primeiros Passos
 
 ### Pré-requisitos
 
--   Python 3.13+
--   PostgreSQL 12+
--   pip e pip-tools
--   Git
+- Python 3.13+
+- PostgreSQL 12+
+- pip e pip-tools
+- Git
 
 ### Instalação
 
@@ -173,6 +173,7 @@ O backend está organizado em aplicações Django específicas por domínio:
     ```
 
 6. **Inicie o servidor de desenvolvimento**
+
     ```bash
     python manage.py runserver
     ```
@@ -183,17 +184,17 @@ A API estará disponível em `http://localhost:8000` e a interface administrativ
 
 A documentação interativa da API está disponível em:
 
--   **Swagger UI**: `http://localhost:8000/api/docs/`
--   **Schema OpenAPI**: `http://localhost:8000/api/schema/`
+- **Swagger UI**: `http://localhost:8000/api/docs/`
+- **Schema OpenAPI**: `http://localhost:8000/api/schema/`
 
 ## 🏢 Arquitetura Multi-Tenant
 
 O SmartPark implementa uma arquitetura multi-tenant onde:
 
--   **Clientes**: Representam empresas/organizações que possuem instalações de estacionamento
--   **Isolamento**: Os dados de cada cliente são completamente isolados
--   **Permissões**: Acesso baseado em funções garante que usuários vejam apenas dados autorizados
--   **Escalabilidade**: Suporte para múltiplos clientes sem vazamento de dados
+- **Clientes**: Representam empresas/organizações que possuem instalações de estacionamento
+- **Isolamento**: Os dados de cada cliente são completamente isolados
+- **Permissões**: Acesso baseado em funções garante que usuários vejam apenas dados autorizados
+- **Escalabilidade**: Suporte para múltiplos clientes sem vazamento de dados
 
 ### Funções de Usuário
 
@@ -295,8 +296,6 @@ GET|POST /api/hardware/cameras/
 POST /api/hardware/events/slot-status/
 ```
 
-### Integração de Hardware
-
 Dispositivos de hardware (câmeras) se autenticam usando chaves API e enviam eventos de status:
 
 ```bash
@@ -339,16 +338,16 @@ coverage report
 
 Os arquivos de teste estão organizados no diretório `tests/` de cada app:
 
--   `test_models.py`: Validação de modelos e lógica de negócio
--   `test_views.py`: Teste de endpoints da API
--   `test_serializers.py`: Teste de serialização de dados
--   `test_urls.py`: Teste de roteamento de URLs
+- `test_models.py`: Validação de modelos e lógica de negócio
+- `test_views.py`: Teste de endpoints da API
+- `test_serializers.py`: Teste de serialização de dados
+- `test_urls.py`: Teste de roteamento de URLs
 
 ## 🛠️ Desenvolvimento
 
 ### Estrutura do Código
 
-```
+```txt
 backend/
 ├── manage.py                 # Script de gerenciamento Django
 ├── smartpark/               # Configurações principais do projeto
@@ -365,30 +364,30 @@ backend/
 
 ### Principais Tecnologias
 
--   **Django 5.2**: Framework web
--   **Django REST Framework**: Desenvolvimento de API
--   **PostgreSQL**: Banco de dados principal
--   **JWT**: Tokens de autenticação
--   **drf-spectacular**: Documentação da API
--   **django-environ**: Configuração de ambiente
--   **django-cors-headers**: Manipulação de CORS
+- **Django 5.2**: Framework web
+- **Django REST Framework**: Desenvolvimento de API
+- **PostgreSQL**: Banco de dados principal
+- **JWT**: Tokens de autenticação
+- **drf-spectacular**: Documentação da API
+- **django-environ**: Configuração de ambiente
+- **django-cors-headers**: Manipulação de CORS
 
 ### Configuração de Ambiente
 
 O projeto usa configurações específicas por ambiente:
 
--   `settings/base.py`: Configurações comuns
--   `settings/dev.py`: Ambiente de desenvolvimento
--   `settings/prod.py`: Ambiente de produção
+- `settings/base.py`: Configurações comuns
+- `settings/dev.py`: Ambiente de desenvolvimento
+- `settings/prod.py`: Ambiente de produção
 
 ### Schema do Banco de Dados
 
 O banco de dados segue um design normalizado com relacionamentos adequados:
 
--   **Isolamento multi-tenant**: Todos os modelos específicos por tenant incluem `client_id`
--   **Exclusão suave**: A maioria dos modelos suporta exclusão suave via `deleted_at`
--   **Trilhas de auditoria**: Timestamps e rastreamento de mudanças
--   **Suporte espacial**: Pronto para dados geométricos PostGIS
+- **Isolamento multi-tenant**: Todos os modelos específicos por tenant incluem `client_id`
+- **Exclusão suave**: A maioria dos modelos suporta exclusão suave via `deleted_at`
+- **Trilhas de auditoria**: Timestamps e rastreamento de mudanças
+- **Suporte espacial**: Pronto para dados geométricos PostGIS
 
 ## 📋 Status do Projeto
 
@@ -396,40 +395,40 @@ O banco de dados segue um design normalizado com relacionamentos adequados:
 
 ✅ **Funcionalidades Concluídas:**
 
--   Arquitetura Django multi-tenant
--   Autenticação JWT com refresh tokens
--   Endpoints de API abrangentes
--   Interface Django Admin
--   Permissões baseadas em funções
--   Gerenciamento de chaves API de hardware
--   Sistema de processamento de eventos
--   Documentação da API com Swagger
+- Arquitetura Django multi-tenant
+- Autenticação JWT com refresh tokens
+- Endpoints de API abrangentes
+- Interface Django Admin
+- Permissões baseadas em funções
+- Gerenciamento de chaves API de hardware
+- Sistema de processamento de eventos
+- Documentação da API com Swagger
 
 ### Roadmap
 
 🚧 **Em Progresso:**
 
--   Aplicações frontend (web e mobile)
--   Integração de visão computacional
--   Notificações em tempo real
--   Análises avançadas
+- Aplicações frontend (web e mobile)
+- Integração de visão computacional
+- Notificações em tempo real
+- Análises avançadas
 
 📋 **Funcionalidades Planejadas:**
 
--   Histórico e análises de ocupação de vagas
--   Monitoramento de heartbeat de câmeras
--   Funcionalidades espaciais avançadas com PostGIS
--   Otimizações de performance
--   Monitoramento e logging abrangentes
+- Histórico e análises de ocupação de vagas
+- Monitoramento de heartbeat de câmeras
+- Funcionalidades espaciais avançadas com PostGIS
+- Otimizações de performance
+- Monitoramento e logging abrangentes
 
 ## 📚 Documentação
 
 Documentação adicional está disponível na pasta `docs/`:
 
--   **[Especificação MVP](docs/smart-park-mvp.md)**: Requisitos detalhados do projeto
--   **[Schema do Banco de Dados](docs/db/smart-park-db.md)**: Design completo do banco de dados
--   **[Roadmap de Desenvolvimento](docs/ROADMAP_GUIDE.md)**: Progresso do desenvolvimento e próximos passos
--   **[Guia de Testes](docs/test_guide.md)**: Diretrizes de teste e melhores práticas
+- **[Especificação MVP](docs/smart-park-mvp.md)**: Requisitos detalhados do projeto
+- **[Schema do Banco de Dados](docs/db/smart-park-db.md)**: Design completo do banco de dados
+- **[Roadmap de Desenvolvimento](docs/ROADMAP_GUIDE.md)**: Progresso do desenvolvimento e próximos passos
+- **[Guia de Testes](docs/test_guide.md)**: Diretrizes de teste e melhores práticas
 
 ## 🔧 Contribuindo
 
@@ -445,11 +444,11 @@ Documentação adicional está disponível na pasta `docs/`:
 
 ### Padrões de Código
 
--   Siga PEP 8 para estilo de código Python
--   Use nomes de variáveis e funções significativos
--   Escreva docstrings para todos os métodos públicos
--   Inclua testes para novas funcionalidades
--   Mantenha commits focados e bem documentados
+- Siga PEP 8 para estilo de código Python
+- Use nomes de variáveis e funções significativos
+- Escreva docstrings para todos os métodos públicos
+- Inclua testes para novas funcionalidades
+- Mantenha commits focados e bem documentados
 
 ### Migrações do Banco de Dados
 
@@ -468,7 +467,7 @@ python manage.py showmigrations
 
 ## 🚀 Deploy
 
-### Configuração de Ambiente
+### Configuração de Ambiente (prod)
 
 1. **Variáveis de Ambiente de Produção**
 
@@ -487,6 +486,7 @@ python manage.py showmigrations
     ```
 
 3. **Configuração do Banco de Dados**
+
     ```bash
     python manage.py migrate
     python manage.py createsuperuser
@@ -523,20 +523,20 @@ Este projeto foi desenvolvido como parte da disciplina **UPX (Usina de Projetos 
 
 ### Objetivos do Projeto
 
--   **Acadêmico**: Demonstrar aplicação prática de princípios de engenharia de software
--   **Técnico**: Construir um sistema de gerenciamento de estacionamento escalável habilitado para IoT
--   **Social**: Contribuir para soluções de mobilidade urbana e redução do congestionamento de trânsito
--   **Ambiental**: Apoiar a redução de emissões através da otimização da busca por estacionamento
+- **Acadêmico**: Demonstrar aplicação prática de princípios de engenharia de software
+- **Técnico**: Construir um sistema de gerenciamento de estacionamento escalável habilitado para IoT
+- **Social**: Contribuir para soluções de mobilidade urbana e redução do congestionamento de trânsito
+- **Ambiental**: Apoiar a redução de emissões através da otimização da busca por estacionamento
 
 ### Resultados de Aprendizagem
 
--   Design de arquitetura SaaS multi-tenant
--   Desenvolvimento de API RESTful com Django REST Framework
--   Integração de dispositivos IoT e arquiteturas orientadas por eventos
--   Processamento de dados em tempo real e gerenciamento de status
--   Autenticação e autorização em sistemas distribuídos
--   Design e otimização de banco de dados
--   Estratégias de teste para aplicações web
+- Design de arquitetura SaaS multi-tenant
+- Desenvolvimento de API RESTful com Django REST Framework
+- Integração de dispositivos IoT e arquiteturas orientadas por eventos
+- Processamento de dados em tempo real e gerenciamento de status
+- Autenticação e autorização em sistemas distribuídos
+- Design e otimização de banco de dados
+- Estratégias de teste para aplicações web
 
 ## 📄 Licença
 
@@ -544,9 +544,9 @@ Este projeto está licenciado sob a Licença MIT - veja o arquivo [LICENSE](LICE
 
 ## 🙏 Agradecimentos
 
--   **Facens** - Por fornecer o framework acadêmico e orientação
--   **Comunidade Django** - Pelo excelente framework web e ecossistema
--   **Contribuidores Open Source** - Pelas bibliotecas e ferramentas que tornam este projeto possível
+- **Facens** - Por fornecer o framework acadêmico e orientação
+- **Comunidade Django** - Pelo excelente framework web e ecossistema
+- **Contribuidores Open Source** - Pelas bibliotecas e ferramentas que tornam este projeto possível
 
 ---
 

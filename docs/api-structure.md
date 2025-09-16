@@ -3,14 +3,16 @@
 ## Padrão de URLs Proposto
 
 ### Estrutura Geral
-```
+
+```json
 api/{app_name}/{categoria}/{endpoint}/
 ```
 
 ### Exemplos por App
 
 #### 🔐 **ACCOUNTS APP**
-```
+
+```json
 api/accounts/auth/login/                    # Login
 api/accounts/auth/refresh/                  # Refresh token
 api/accounts/auth/logout/                   # Logout
@@ -26,7 +28,8 @@ api/accounts/user/utils/check-email/        # Verificar email
 ```
 
 #### 🌐 **CATALOG APP**
-```
+
+```json
 api/catalog/public/establishments/          # Lista pública de estabelecimentos
 api/catalog/public/establishments/{id}/slots/ # Vagas de um estabelecimento
 
@@ -36,7 +39,8 @@ api/catalog/slot-types/list/                # Tipos de vagas
 ```
 
 #### 🏢 **TENANTS APP**
-```
+
+```json
 api/tenants/client/list/                    # Lista de clientes
 api/tenants/client/create/                  # Criar cliente
 api/tenants/client/{id}/detail/             # Detalhes do cliente
@@ -70,7 +74,8 @@ api/tenants/slot/{id}/history/              # Histórico da vaga
 ```
 
 #### 📹 **HARDWARE APP**
-```
+
+```json
 api/hardware/camera/list/                   # Lista de câmeras
 api/hardware/camera/create/                 # Registrar câmera
 api/hardware/camera/{id}/detail/            # Detalhes da câmera
@@ -89,7 +94,8 @@ api/hardware/integration/batch-update/      # Atualização em lote
 ```
 
 #### ⚡ **EVENTS APP**
-```
+
+```json
 api/events/system/list/                     # Eventos do sistema
 api/events/system/create/                   # Criar evento
 api/events/system/{id}/detail/              # Detalhes do evento
@@ -102,7 +108,8 @@ api/events/analytics/metrics/               # Métricas do sistema
 ## Estrutura Hierárquica do Swagger
 
 ### Organização das Tags
-```
+
+```txt
 📱 Accounts
   ├── 🔐 Accounts - Authentication
   └── 👤 Accounts - Users
@@ -136,21 +143,25 @@ api/events/analytics/metrics/               # Métricas do sistema
 ## Benefícios da Nova Estrutura
 
 ### 1. **Organização Intuitiva**
+
 - URLs seguem padrão consistente
 - Fácil navegação no Swagger
 - Agrupamento lógico por funcionalidade
 
 ### 2. **Escalabilidade**
+
 - Fácil adicionar novos endpoints
 - Estrutura flexível para novos apps
 - Manutenção simplificada
 
 ### 3. **Developer Experience**
+
 - URLs autodocumentadas
 - Swagger bem organizado
 - Fácil localização de endpoints
 
 ### 4. **Separação de Responsabilidades**
+
 - Catalog: dados públicos e tipos/categorias
 - Tenants: dados específicos do cliente
 - Accounts: autenticação e usuários
@@ -160,6 +171,7 @@ api/events/analytics/metrics/               # Métricas do sistema
 ## Implementação
 
 ### 1. **Configuração do drf-spectacular**
+
 ```python
 SPECTACULAR_SETTINGS = {
     "TAGS": [
@@ -173,6 +185,7 @@ SPECTACULAR_SETTINGS = {
 ```
 
 ### 2. **Views com Tags Hierárquicas**
+
 ```python
 @extend_schema(
     tags=["Accounts - Authentication"],
@@ -184,6 +197,7 @@ class LoginView(APIView):
 ```
 
 ### 3. **URLs Organizadas**
+
 ```python
 urlpatterns = [
     path("auth/login/", LoginView.as_view(), name="auth_login"),

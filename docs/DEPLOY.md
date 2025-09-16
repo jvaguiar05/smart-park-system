@@ -1,18 +1,15 @@
-# ===========================================
 
 # SmartPark - Guia de Deploy com Docker
-
-# ===========================================
 
 Este guia fornece instruções completas para fazer deploy do SmartPark usando Docker.
 
 ## 📋 Pré-requisitos
 
--   Docker Engine 20.10+
--   Docker Compose 2.0+
--   Git
--   2GB+ RAM disponível
--   10GB+ espaço em disco
+- Docker Engine 20.10+
+- Docker Compose 2.0+
+- Git
+- 2GB+ RAM disponível
+- 10GB+ espaço em disco
 
 ## 🚀 Deploy Rápido (Desenvolvimento)
 
@@ -48,10 +45,10 @@ docker-compose logs -f web
 
 ### 4. Acessar a Aplicação
 
--   **Aplicação Django**: http://localhost:8000
--   **Admin Django**: http://localhost:8000/admin (admin/admin123)
--   **Interface DB**: http://localhost:8080
--   **Interface Redis**: http://localhost:8081
+- **Aplicação Django**: <http://localhost:8000>
+- **Admin Django**: <http://localhost:8000/admin> (admin/admin123)
+- **Interface DB**: <http://localhost:8080>
+- **Interface Redis**: <http://localhost:8081>
 
 ## 🏭 Deploy de Produção
 
@@ -277,26 +274,26 @@ find . -name "backup_*.sql" -mtime +7 -delete
 
 ### Pré-Deploy
 
--   [ ] Configurar variáveis de ambiente
--   [ ] Verificar recursos do servidor
--   [ ] Configurar domínio DNS
--   [ ] Preparar certificados SSL
+- [ ] Configurar variáveis de ambiente
+- [ ] Verificar recursos do servidor
+- [ ] Configurar domínio DNS
+- [ ] Preparar certificados SSL
 
 ### Deploy
 
--   [ ] Build das imagens Docker
--   [ ] Executar migrações
--   [ ] Coletar arquivos estáticos
--   [ ] Configurar Nginx
--   [ ] Verificar health checks
+- [ ] Build das imagens Docker
+- [ ] Executar migrações
+- [ ] Coletar arquivos estáticos
+- [ ] Configurar Nginx
+- [ ] Verificar health checks
 
 ### Pós-Deploy
 
--   [ ] Testar endpoints principais
--   [ ] Verificar logs
--   [ ] Configurar monitoramento
--   [ ] Configurar backups
--   [ ] Documentar credenciais
+- [ ] Testar endpoints principais
+- [ ] Verificar logs
+- [ ] Configurar monitoramento
+- [ ] Configurar backups
+- [ ] Documentar credenciais
 
 ## 🆘 Suporte
 
@@ -309,7 +306,7 @@ Para problemas específicos:
 
 ## 📚 Recursos Adicionais
 
--   [Documentação Docker](https://docs.docker.com/)
--   [Documentação Django](https://docs.djangoproject.com/)
--   [Guias de Segurança Django](https://docs.djangoproject.com/en/5.0/topics/security/)
--   [Best Practices Docker](https://docs.docker.com/develop/best-practices/)
+- [Documentação Docker](https://docs.docker.com/)
+- [Documentação Django](https://docs.djangoproject.com/)
+- [Guias de Segurança Django](https://docs.djangoproject.com/en/5.0/topics/security/)
+- [Best Practices Docker](https://docs.docker.com/develop/best-practices/)
