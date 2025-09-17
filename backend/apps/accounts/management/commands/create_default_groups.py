@@ -23,7 +23,11 @@ class Command(BaseCommand):
             },
             {
                 "name": "client_admin",
-                "description": "Administradores de cliente - gerenciam próprio tenant",
+                "description": "Administradores de cliente - acesso total a todos os estabelecimentos",
+            },
+            {
+                "name": "client_establishment_admin",
+                "description": "Administradores de estabelecimento - acesso a estabelecimento específico",
             },
             {
                 "name": "app_user",

@@ -5,17 +5,15 @@ from apps.core.models import BaseModel, SoftDeleteManager
 
 class Clients(BaseModel):
     ONBOARDING_STATUS_CHOICES = [
-        ('PENDING', 'Pendente'),
-        ('ACTIVE', 'Ativo'),
-        ('SUSPENDED', 'Suspenso'),
-        ('CANCELLED', 'Cancelado'),
+        ("PENDING", "Pendente"),
+        ("ACTIVE", "Ativo"),
+        ("SUSPENDED", "Suspenso"),
+        ("CANCELLED", "Cancelado"),
     ]
 
     name = models.CharField(max_length=120)
     onboarding_status = models.CharField(
-        max_length=32, 
-        choices=ONBOARDING_STATUS_CHOICES,
-        default="PENDING"
+        max_length=32, choices=ONBOARDING_STATUS_CHOICES, default="PENDING"
     )
 
     objects = SoftDeleteManager()
@@ -49,6 +47,15 @@ class ClientMembers(BaseModel):
         db_column="role_id",
         related_name="client_members",
     )
+    # Estabelecimento específico (opcional - null para client_admin)
+    establishment = models.ForeignKey(
+        "catalog.Establishments",
+        on_delete=models.PROTECT,
+        db_column="establishment_id",
+        related_name="client_members",
+        null=True,
+        blank=True,
+    )
     joined_at = models.DateTimeField(auto_now_add=True)
 
     objects = SoftDeleteManager()
@@ -56,10 +63,15 @@ class ClientMembers(BaseModel):
     class Meta:
         db_table = "client_members"
         constraints = [
+            # Constraint único: usuário + cliente + estabelecimento + role
             models.UniqueConstraint(
-                fields=["client", "user"], name="uq_client_members_client_user"
+                fields=["client", "user", "establishment", "role"],
+                name="uq_client_members_unique",
             ),
         ]
 
     def __str__(self):
-        return f"{self.user.username} - {self.client.name} ({self.role.name})"
+        establishment_str = (
+            f" - {self.establishment.name}" if self.establishment else ""
+        )
+        return f"{self.user.username} - {self.client.name}{establishment_str} ({self.role.name})"
