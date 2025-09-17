@@ -2,24 +2,35 @@ from rest_framework import serializers
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 
-class LoginSerializer(serializers.Serializer):
+class LoginSerializer(TokenObtainPairSerializer):
     """
-    Serializer customizado para login
+    Serializer customizado para login com JWT
     """
 
-    username = serializers.CharField()
-    password = serializers.CharField(write_only=True)
+    username_field = User.USERNAME_FIELD
 
-    def validate(self, attrs):
-        username = attrs.get("username")
-        password = attrs.get("password")
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields[self.username_field] = serializers.CharField()
+        self.fields["password"] = serializers.CharField()
 
-        if username and password:
-            return attrs
-        else:
-            raise serializers.ValidationError('Must include "username" and "password".')
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+
+        # Adicionar claims customizados ao token
+        token["username"] = user.username
+        token["email"] = user.email
+        token["role"] = "app_user"  # Default role
+
+        # Se o usuário for staff, adicionar role admin
+        if user.is_staff:
+            token["role"] = "admin"
+
+        return token
 
 
 class CreateAppUserSerializer(serializers.ModelSerializer):

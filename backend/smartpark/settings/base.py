@@ -216,5 +216,51 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_REFRESH_LIFETIME": timedelta(days=1),
 }
 
-# CORS
-CORS_ALLOWED_ORIGINS = env("CORS_ALLOWED_ORIGINS")
+# CORS Configuration
+# Para desenvolvimento, permitir todos os origins
+if DEBUG:
+    CORS_ALLOW_ALL_ORIGINS = True
+    CORS_ALLOW_CREDENTIALS = True
+else:
+    CORS_ALLOWED_ORIGINS = env("CORS_ALLOWED_ORIGINS", default=[])
+    CORS_ALLOW_CREDENTIALS = True
+
+# Headers permitidos
+CORS_ALLOW_HEADERS = [
+    "accept",
+    "accept-encoding",
+    "authorization",
+    "content-type",
+    "dnt",
+    "origin",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
+    "x-api-key",
+    "x-signature",
+    "x-timestamp",
+]
+
+# Métodos permitidos
+CORS_ALLOW_METHODS = [
+    "DELETE",
+    "GET",
+    "OPTIONS",
+    "PATCH",
+    "POST",
+    "PUT",
+]
+
+# Permite cookies/credenciais em requests CORS
+CORS_EXPOSE_HEADERS = [
+    "content-type",
+    "x-csrftoken",
+]
+
+# CSRF Configuration para APIs
+CSRF_TRUSTED_ORIGINS = env("CSRF_TRUSTED_ORIGINS", default=[])
+
+# Para desenvolvimento, permitir CSRF menos restritivo
+if DEBUG:
+    CSRF_COOKIE_HTTPONLY = False  # Permite JS acessar o cookie CSRF
+    CSRF_COOKIE_SAMESITE = "Lax"  # Menos restritivo para desenvolvimento
