@@ -12,6 +12,8 @@ class ApiKeys(TenantModel):
 
     class Meta:
         db_table = "api_keys"
+        verbose_name = "Chave de API"
+        verbose_name_plural = "Chaves de API"
 
     def __str__(self):
         return f"{self.name} ({self.key_id})"
@@ -19,12 +21,12 @@ class ApiKeys(TenantModel):
 
 class Cameras(TenantModel):
     STATE_CHOICES = [
-        ('UNASSIGNED', 'Não atribuída'),
-        ('ASSIGNED', 'Atribuída'),
-        ('ACTIVE', 'Ativa'),
-        ('INACTIVE', 'Inativa'),
-        ('MAINTENANCE', 'Manutenção'),
-        ('ERROR', 'Erro'),
+        ("UNASSIGNED", "Não atribuída"),
+        ("ASSIGNED", "Atribuída"),
+        ("ACTIVE", "Ativa"),
+        ("INACTIVE", "Inativa"),
+        ("MAINTENANCE", "Manutenção"),
+        ("ERROR", "Erro"),
     ]
 
     establishment = models.ForeignKey(
@@ -57,6 +59,8 @@ class Cameras(TenantModel):
 
     class Meta:
         db_table = "cameras"
+        verbose_name = "Câmera"
+        verbose_name_plural = "Câmeras"
         constraints = [
             models.UniqueConstraint(
                 fields=["client", "camera_code"], name="uq_cameras_client_code"
@@ -81,6 +85,8 @@ class CameraHeartbeats(BaseModel):
 
     class Meta:
         db_table = "camera_heartbeats"
+        verbose_name = "Heartbeat da Câmera"
+        verbose_name_plural = "Heartbeats das Câmeras"
         indexes = [
             models.Index(
                 fields=["camera", "received_at"], name="ix_cam_heartbeats_cam_rec_at"

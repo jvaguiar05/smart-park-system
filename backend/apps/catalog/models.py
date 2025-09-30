@@ -9,6 +9,8 @@ class StoreTypes(BaseModel):
 
     class Meta:
         db_table = "store_types"
+        verbose_name = "Tipo de Loja"
+        verbose_name_plural = "Tipos de Lojas"
 
     def __str__(self):
         return self.name
@@ -34,6 +36,8 @@ class Establishments(TenantModel):
 
     class Meta:
         db_table = "establishments"
+        verbose_name = "Estabelecimento"
+        verbose_name_plural = "Estabelecimentos"
         constraints = [
             models.UniqueConstraint(
                 fields=["client", "name"], name="uq_establishments_client_name"
@@ -61,6 +65,8 @@ class Lots(TenantModel):
 
     class Meta:
         db_table = "lots"
+        verbose_name = "Lote"
+        verbose_name_plural = "Lotes"
         constraints = [
             models.UniqueConstraint(
                 fields=["client", "lot_code"], name="uq_lots_client_code"
@@ -78,6 +84,8 @@ class SlotTypes(BaseModel):
 
     class Meta:
         db_table = "slot_types"
+        verbose_name = "Tipo de Vaga"
+        verbose_name_plural = "Tipos de Vagas"
 
     def __str__(self):
         return self.name
@@ -90,6 +98,8 @@ class VehicleTypes(BaseModel):
 
     class Meta:
         db_table = "vehicle_types"
+        verbose_name = "Tipo de Veículo"
+        verbose_name_plural = "Tipos de Veículos"
 
     def __str__(self):
         return self.name
@@ -97,10 +107,7 @@ class VehicleTypes(BaseModel):
 
 class Slots(TenantModel):
     lot = models.ForeignKey(
-        "Lots", 
-        on_delete=models.PROTECT, 
-        db_column="lot_id", 
-        related_name="slots"
+        "Lots", on_delete=models.PROTECT, db_column="lot_id", related_name="slots"
     )
     slot_code = models.CharField(max_length=10)
     slot_type = models.ForeignKey(
@@ -116,6 +123,8 @@ class Slots(TenantModel):
 
     class Meta:
         db_table = "slots"
+        verbose_name = "Vaga"
+        verbose_name_plural = "Vagas"
         constraints = [
             models.UniqueConstraint(
                 fields=["lot", "slot_code"], name="uq_slots_lot_code"
@@ -128,11 +137,11 @@ class Slots(TenantModel):
 
 class SlotStatus(models.Model):
     STATUS_CHOICES = [
-        ('FREE', 'Livre'),
-        ('OCCUPIED', 'Ocupada'),
-        ('RESERVED', 'Reservada'),
-        ('MAINTENANCE', 'Manutenção'),
-        ('DISABLED', 'Desabilitada'),
+        ("FREE", "Livre"),
+        ("OCCUPIED", "Ocupada"),
+        ("RESERVED", "Reservada"),
+        ("MAINTENANCE", "Manutenção"),
+        ("DISABLED", "Desabilitada"),
     ]
 
     id = models.BigAutoField(primary_key=True)
@@ -158,10 +167,10 @@ class SlotStatus(models.Model):
 
     class Meta:
         db_table = "slot_status"
+        verbose_name = "Status da Vaga"
+        verbose_name_plural = "Status das Vagas"
         constraints = [
-            models.UniqueConstraint(
-                fields=["slot"], name="uq_slot_status_slot"
-            ),
+            models.UniqueConstraint(fields=["slot"], name="uq_slot_status_slot"),
         ]
 
     def __str__(self):
@@ -194,6 +203,8 @@ class SlotStatusHistory(BaseModel):
 
     class Meta:
         db_table = "slot_status_history"
+        verbose_name = "Histórico de Status"
+        verbose_name_plural = "Históricos de Status"
         indexes = [
             models.Index(
                 fields=["slot", "recorded_at"], name="ix_slot_hist_slot_rec_at"

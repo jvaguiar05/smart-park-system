@@ -20,6 +20,8 @@ class Clients(BaseModel):
 
     class Meta:
         db_table = "clients"
+        verbose_name = "Cliente"
+        verbose_name_plural = "Clientes"
         indexes = [
             models.Index(fields=["name"], name="ix_clients_name"),
         ]
@@ -62,6 +64,8 @@ class ClientMembers(BaseModel):
 
     class Meta:
         db_table = "client_members"
+        verbose_name = "Membro do Cliente"
+        verbose_name_plural = "Membros dos Clientes"
         constraints = [
             # Constraint único: usuário + cliente + estabelecimento + role
             models.UniqueConstraint(

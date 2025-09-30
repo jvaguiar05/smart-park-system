@@ -184,6 +184,67 @@
         border-radius: 12px;
         box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
       }
+
+      .dropdown-menu {
+        border-radius: 8px;
+        border: 1px solid #e9ecef;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        padding: 0.5rem 0;
+      }
+
+      .dropdown-item {
+        padding: 0.75rem 1.25rem;
+        transition: background-color 0.15s ease;
+      }
+
+      .dropdown-item:hover {
+        background-color: #f8f9fa;
+      }
+
+      /* Melhorias na navegação */
+      .navbar-nav .nav-link {
+        position: relative;
+        transition: all 0.3s ease;
+        padding: 0.75rem 1rem;
+      }
+
+      .navbar-nav .nav-link:hover:not(.dropdown-toggle) {
+        color: var(--smartpark-primary) !important;
+        transform: translateY(-1px);
+      }
+
+      .navbar-nav .nav-link::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        width: 0;
+        height: 2px;
+        background: var(--smartpark-primary);
+        transition: all 0.3s ease;
+        transform: translateX(-50%);
+      }
+
+      .navbar-nav .nav-link:hover:not(.dropdown-toggle)::after {
+        width: 80%;
+      }
+
+      /* Garantir que o dropdown não seja afetado pelas animações */
+      .navbar-nav .dropdown-toggle:hover {
+        transform: none !important;
+      }
+
+      .navbar-nav .dropdown-toggle::after {
+        display: none !important;
+      }
+
+      /* Espaçamento responsivo */
+      @media (max-width: 991px) {
+        .navbar-nav .nav-item {
+          margin-right: 0 !important;
+          margin-bottom: 0.5rem;
+        }
+      }
     </style>
   </head>
   <body>
@@ -206,22 +267,17 @@
         <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="navbar-nav me-auto">
             {% block nav_links %}
-            <li class="nav-item">
-              <a class="nav-link fw-medium" href="{% url 'public:home' %}"
-                >Home</a
-              >
-            </li>
-            <li class="nav-item">
+            <li class="nav-item me-3">
               <a class="nav-link fw-medium" href="{% url 'public:about' %}"
                 >Sobre</a
               >
             </li>
-            <li class="nav-item">
+            <li class="nav-item me-3">
               <a class="nav-link fw-medium" href="{% url 'public:contact' %}"
                 >Contato</a
               >
             </li>
-            <li class="nav-item">
+            <li class="nav-item me-3">
               <a class="nav-link fw-medium" href="/api/docs/" target="_blank"
                 >API</a
               >
@@ -230,46 +286,37 @@
           </ul>
 
           <ul class="navbar-nav">
-            {% block nav_user %} {% if user.is_authenticated %}
+            {% block nav_user %}
             <li class="nav-item dropdown">
               <a
-                class="nav-link dropdown-toggle fw-medium"
+                class="nav-link dropdown-toggle"
                 href="#"
                 id="navbarDropdown"
                 role="button"
                 data-bs-toggle="dropdown"
+                aria-expanded="false"
               >
-                <i class="fas fa-user-circle me-1"></i> {{
-                user.get_full_name|default:user.username }}
+                <i class="fas fa-user me-2"></i>Visitante
               </a>
-              <ul class="dropdown-menu dropdown-menu-end shadow border-0">
-                {% if user.is_superuser or user.is_staff %}
+
+              <ul class="dropdown-menu dropdown-menu-end">
                 <li>
-                  <a class="dropdown-item" href="/admin/"
-                    ><i class="fas fa-tools me-2"></i> Admin Backoffice</a
-                  >
+                  <a class="dropdown-item" href="/admin/" target="_blank">
+                    <i class="fas fa-cog me-2"></i>Admin Backoffice
+                  </a>
                 </li>
-                {% endif %}
-                <li><hr class="dropdown-divider" /></li>
                 <li>
                   <a
-                    class="dropdown-item text-danger"
-                    href="/api/accounts/auth/logout/"
-                    ><i class="fas fa-sign-out-alt me-2"></i> Logout</a
+                    class="dropdown-item"
+                    href="#"
+                    onclick="alert('Em desenvolvimento')"
                   >
+                    <i class="fas fa-users me-2"></i>Client Backoffice
+                  </a>
                 </li>
               </ul>
             </li>
-            {% else %}
-            <li class="nav-item">
-              <a
-                class="btn btn-outline-smartpark"
-                href="/api/accounts/auth/login/"
-              >
-                <i class="fas fa-sign-in-alt me-1"></i> Login
-              </a>
-            </li>
-            {% endif %} {% endblock %}
+            {% endblock %}
           </ul>
         </div>
       </div>
@@ -323,13 +370,6 @@
           <div class="col-lg-2 col-md-6 mb-4">
             <h6 class="text-white mb-3">Navegação</h6>
             <ul class="list-unstyled">
-              <li class="mb-2">
-                <a
-                  href="{% url 'public:home' %}"
-                  class="text-light opacity-75 text-decoration-none hover-opacity-100"
-                  >Home</a
-                >
-              </li>
               <li class="mb-2">
                 <a
                   href="{% url 'public:about' %}"

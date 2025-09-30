@@ -5,13 +5,13 @@ from apps.core.models import TenantModel, TenantManager
 
 class SlotStatusEvents(TenantModel):
     EVENT_TYPE_CHOICES = [
-        ('STATUS_CHANGE', 'Mudança de Status'),
-        ('VEHICLE_DETECTED', 'Veículo Detectado'),
-        ('VEHICLE_LEFT', 'Veículo Saiu'),
-        ('MAINTENANCE_START', 'Início de Manutenção'),
-        ('MAINTENANCE_END', 'Fim de Manutenção'),
-        ('RESERVATION_START', 'Início de Reserva'),
-        ('RESERVATION_END', 'Fim de Reserva'),
+        ("STATUS_CHANGE", "Mudança de Status"),
+        ("VEHICLE_DETECTED", "Veículo Detectado"),
+        ("VEHICLE_LEFT", "Veículo Saiu"),
+        ("MAINTENANCE_START", "Início de Manutenção"),
+        ("MAINTENANCE_END", "Fim de Manutenção"),
+        ("RESERVATION_START", "Início de Reserva"),
+        ("RESERVATION_END", "Fim de Reserva"),
     ]
 
     event_id = models.UUIDField(unique=True, default=uuid.uuid4)
@@ -67,6 +67,8 @@ class SlotStatusEvents(TenantModel):
 
     class Meta:
         db_table = "slot_status_events"
+        verbose_name = "Evento de Status"
+        verbose_name_plural = "Eventos de Status"
         indexes = [
             models.Index(
                 fields=["slot", "occurred_at"], name="ix_slot_sts_events_occ_at"

@@ -21,6 +21,7 @@ DEBUG = env("DJANGO_DEBUG")
 ALLOWED_HOSTS = env("DJANGO_ALLOWED_HOSTS")
 
 INSTALLED_APPS = [
+    "jazzmin",  # Deve vir antes do django.contrib.admin
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -74,7 +75,33 @@ TEMPLATES = [
         },
     },
 ]
+
+# Static files (CSS, JavaScript, Images)
 STATIC_URL = "static/"
+STATIC_ROOT = BASE_DIR.parent / "staticfiles"  # Para deploy
+STATICFILES_DIRS = [
+    BASE_DIR.parent / "templates/admin",  # Caminho correto: backend/templates/admin
+]
+
+# Media files (uploads)
+MEDIA_URL = "media/"
+MEDIA_ROOT = BASE_DIR / "media"
+
+# Cache configuration for better admin performance
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "smartpark-cache",
+        "TIMEOUT": 300,  # 5 minutes
+        "OPTIONS": {
+            "MAX_ENTRIES": 1000,
+        }
+    }
+}
+
+# Session configuration
+SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
+SESSION_CACHE_ALIAS = "default"
 
 # DB via DATABASE_URL
 DATABASES = {"default": env.db("DATABASE_URL")}
@@ -258,9 +285,216 @@ CORS_EXPOSE_HEADERS = [
 ]
 
 # CSRF Configuration para APIs
-CSRF_TRUSTED_ORIGINS = env("CSRF_TRUSTED_ORIGINS", default=[])
+CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS", default=[
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+])
 
-# Para desenvolvimento, permitir CSRF menos restritivo
-if DEBUG:
-    CSRF_COOKIE_HTTPONLY = False  # Permite JS acessar o cookie CSRF
-    CSRF_COOKIE_SAMESITE = "Lax"  # Menos restritivo para desenvolvimento
+# Configurações de CSRF do .env
+CSRF_COOKIE_HTTPONLY = env.bool("CSRF_COOKIE_HTTPONLY", default=False)
+CSRF_COOKIE_SAMESITE = env.str("CSRF_COOKIE_SAMESITE", default="Lax")
+
+
+# ============================================================================
+# JAZZMIN SETTINGS - Interface moderna para Django Admin
+# ============================================================================
+
+JAZZMIN_SETTINGS = {
+    # Título da aplicação
+    "site_title": "SmartPark Admin",
+    "site_header": "🏗️ SmartPark - Sistema Inteligente",
+    "site_brand": "SmartPark",
+    "site_logo": None,  # Pode adicionar logo depois
+    "login_logo": None,
+    "login_logo_dark": None,
+    "site_logo_classes": "img-circle",
+    "site_icon": "fas fa-parking",
+    
+    # Texto de boas-vindas na página de login
+    "welcome_sign": "Bem-vindo ao SmartPark Admin Backoffice",
+    
+    # Texto de copyright
+    "copyright": "SmartPark - Sistema Inteligente de Estacionamentos © 2025",
+    
+    # Busca de models no admin
+    "search_model": ["auth.User", "tenants.Clients", "catalog.Establishments"],
+    
+    # ID do usuário para mostrar avatar (campo)
+    "user_avatar": None,
+    
+    ############
+    # Top Menu #
+    ############
+    
+    # Links no topo do admin
+    "topmenu_links": [
+        # Dashboard principal
+        {"name": "🏠 Dashboard", "url": "admin:index", "permissions": ["auth.view_user"]},
+        
+        # Páginas úteis
+        {"name": "🌐 Site Público", "url": "/", "new_window": True},
+        {"name": "📚 API Docs", "url": "/api/docs/", "new_window": True},
+    ],
+    
+    #############
+    # Side Menu #
+    #############
+    
+    # Se deve mostrar a sidebar
+    "show_sidebar": True,
+    
+    # Se deve mostrar navegação na sidebar
+    "navigation_expanded": True,
+    
+    # Esconder apps/models específicos
+    "hide_apps": [],
+    "hide_models": [],
+    
+    # Ordenar apps (caso contrário é alfabético)
+    "order_with_respect_to": [
+        "tenants",      # Clientes primeiro
+        "catalog",      # Catálogo de estabelecimentos
+        "hardware",     # Hardware/câmeras
+        "events",       # Eventos do sistema
+        "accounts",     # Contas de usuários
+        "auth",         # Autenticação Django
+    ],
+    
+    # Ícones customizados para apps
+    "icons": {
+        "auth": "fas fa-users-cog",
+        "auth.User": "fas fa-user",
+        "auth.Group": "fas fa-users",
+        
+        "tenants": "fas fa-building",
+        "tenants.Clients": "fas fa-handshake",
+        "tenants.ClientMembers": "fas fa-user-tie",
+        
+        "catalog": "fas fa-store",
+        "catalog.Establishments": "fas fa-building-flag",
+        "catalog.Lots": "fas fa-square-parking",
+        "catalog.Slots": "fas fa-parking",
+        "catalog.StoreTypes": "fas fa-tags",
+        "catalog.VehicleTypes": "fas fa-car",
+        "catalog.SlotTypes": "fas fa-list-alt",
+        "catalog.SlotStatus": "fas fa-traffic-light",
+        "catalog.SlotStatusHistory": "fas fa-history",
+        
+        "hardware": "fas fa-video",
+        "hardware.Cameras": "fas fa-camera",
+        "hardware.ApiKeys": "fas fa-key",
+        "hardware.CameraHeartbeats": "fas fa-heartbeat",
+        
+        "events": "fas fa-bell",
+        "events.SlotStatusEvents": "fas fa-car-side",
+        
+        "accounts": "fas fa-user-shield",
+    },
+    
+    # Links customizados na sidebar que são sempre exibidos
+    "custom_links": {
+        "tenants": [{
+            "name": "📊 Dashboard de Clientes",
+            "url": "admin:tenants_clients_changelist",
+            "icon": "fas fa-chart-pie",
+            "permissions": ["tenants.view_clients"]
+        }, {
+            "name": "👥 Gestão de Membros", 
+            "url": "admin:tenants_clientmembers_changelist",
+            "icon": "fas fa-users-cog",
+            "permissions": ["tenants.view_clientmembers"]
+        }],
+        "catalog": [{
+            "name": "🗺️ Mapa de Vagas",
+            "url": "admin:catalog_slots_changelist", 
+            "icon": "fas fa-map-marked-alt",
+            "permissions": ["catalog.view_slots"]
+        }, {
+            "name": "📍 Status em Tempo Real",
+            "url": "admin:catalog_slotstatus_changelist",
+            "icon": "fas fa-broadcast-tower", 
+            "permissions": ["catalog.view_slotstatus"]
+        }],
+        "hardware": [{
+            "name": "� Monitor de Câmeras",
+            "url": "admin:hardware_cameras_changelist",
+            "icon": "fas fa-video",
+            "permissions": ["hardware.view_cameras"]
+        }, {
+            "name": "💓 Heartbeats",
+            "url": "admin:hardware_cameraheartbeats_changelist",
+            "icon": "fas fa-heartbeat",
+        }]
+    },
+    
+    # Links customizados na sidebar - removidos temporariamente devido a problemas de URL
+    "custom_links": {},
+    
+    # Configurações de relatórios e analytics
+    "show_ui_builder": False,
+    
+    # Configurações relacionadas ao modelo do SmartPark
+    "related_modal_active": True,  # Permite edição em modal
+    "custom_navigation": True,
+    
+    # CSS e JS customizados
+    "custom_css": "css/jazzmin_custom.css",
+    "custom_js": "js/jazzmin_custom.js",
+    
+    # Se deve mostrar o link para o site público
+    "show_ui_builder": False,
+    
+    ###############
+    # Change view #
+    ###############
+    
+    "changeform_format": "horizontal_tabs",
+    # "changeform_format": "collapsible",
+    # "changeform_format": "carousel",
+    
+    "changeform_format_overrides": {
+        "auth.user": "collapsible", 
+        "auth.group": "vertical_tabs",
+        "tenants.clients": "horizontal_tabs",
+        "catalog.establishments": "horizontal_tabs",
+        "hardware.cameras": "collapsible",
+    },
+    
+    # Add a language dropdown into the admin
+    "language_chooser": False,
+}
+
+JAZZMIN_UI_TWEAKS = {
+    "navbar_small_text": False,
+    "footer_small_text": False,
+    "body_small_text": False,
+    "brand_small_text": False,
+    "brand_colour": "navbar-primary",
+    "accent": "accent-primary",
+    "navbar": "navbar-dark",
+    "no_navbar_border": False,
+    "navbar_fixed": True,  # Navbar fixo para melhor UX
+    "layout_boxed": False,
+    "footer_fixed": False,
+    "sidebar_fixed": True,  # Sidebar fixo para navegação fácil
+    "sidebar": "sidebar-dark-primary",
+    "sidebar_nav_small_text": False,
+    "sidebar_disable_expand": False,
+    "sidebar_nav_child_indent": True,  # Melhor hierarquia visual
+    "sidebar_nav_compact_style": False,
+    "sidebar_nav_legacy_style": False,
+    "sidebar_nav_flat_style": True,  # Estilo mais moderno
+    "theme": "default",
+    "dark_mode_theme": None,
+    "button_classes": {
+        "primary": "btn-primary",
+        "secondary": "btn-secondary", 
+        "info": "btn-info",
+        "warning": "btn-warning",
+        "danger": "btn-danger",
+        "success": "btn-success"
+    },
+    "actions_sticky_top": True  # Ações fixas para listas longas
+}
