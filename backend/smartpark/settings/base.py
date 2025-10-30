@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     "apps.hardware",
     "apps.events",
     "apps.public",
+    "apps.client_backoffice",
 ]
 
 MIDDLEWARE = [

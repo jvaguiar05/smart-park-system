@@ -7,8 +7,8 @@ from .admin import admin_site
 urlpatterns = [
     # Admin Backoffice - Restrito para superusuários e staff
     path("admin/", admin_site.urls),
-    # Futuras URLs dos outros backoffices
-    # path("client/", include("apps.client_backoffice.urls")),  # Phase 2
+    # Client Backoffice - Portal do cliente
+    path("client/", include("apps.client_backoffice.urls")),
     # Páginas públicas - Home e institucionais
     path("", include("apps.public.urls")),
     # OpenAPI/Swagger
