@@ -12,7 +12,7 @@ attrs==25.3.0
     # via
     #   jsonschema
     #   referencing
-django==5.2.6
+django==5.2.7
     # via
     #   -r base.in
     #   django-cors-headers
@@ -62,9 +62,5 @@ rpds-py==0.27.1
     #   referencing
 sqlparse==0.5.3
     # via django
-tzdata==2025.2
-    # via
-    #   django
-    #   psycopg
 uritemplate==4.2.0
     # via drf-spectacular
